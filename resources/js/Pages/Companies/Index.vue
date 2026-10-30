@@ -73,7 +73,7 @@ const toggle = (company) => {
                                 <div class="flex items-center gap-3">
                                     <div
                                         class="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-soft ring-1 ring-black/5"
-                                        :style="company.logo_url ? {} : { background: company.primary_color || '#278074' }"
+                                        :style="company.logo_url ? {} : { background: company.primary_color || '#0B3D8C' }"
                                     >
                                         <img
                                             v-if="company.logo_url"
