@@ -74,34 +74,65 @@
         @apply -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0;
     }
 
-    .spinly-logo-enter {
-        animation: spinly-logo-in 1.35s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    .kucek-logo-enter {
+        animation: kucek-logo-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .kucek-rise {
+        animation: kucek-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    .kucek-rise-delayed {
+        animation: kucek-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+    }
+
+    .kucek-float {
+        animation: kucek-float 5.5s ease-in-out infinite;
+    }
+
+    .kucek-float-delayed {
+        animation: kucek-float 6.5s ease-in-out 0.8s infinite;
     }
 }
 
-@keyframes spinly-logo-in {
+@keyframes kucek-logo-in {
     0% {
         opacity: 0;
-        transform: translateX(3.5rem) scale(0.35) rotate(-220deg);
-        filter: blur(4px);
-    }
-    55% {
-        opacity: 1;
-        transform: translateX(-0.35rem) scale(1.12) rotate(18deg);
-        filter: blur(0);
-    }
-    75% {
-        transform: translateX(0.15rem) scale(0.94) rotate(-8deg);
+        transform: translateY(10px) scale(0.96);
     }
     100% {
         opacity: 1;
-        transform: translateX(0) scale(1) rotate(0deg);
-        filter: blur(0);
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes kucek-rise {
+    0% {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes kucek-float {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .spinly-logo-enter {
+    .kucek-logo-enter,
+    .kucek-rise,
+    .kucek-rise-delayed,
+    .kucek-float,
+    .kucek-float-delayed {
         animation: none;
     }
 }
