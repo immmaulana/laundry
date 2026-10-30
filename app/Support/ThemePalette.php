@@ -4,6 +4,29 @@ namespace App\Support;
 
 class ThemePalette
 {
+    /** Default brand — sama dengan halaman login Spinly */
+    public const DEFAULT_PRIMARY = '#0B3D8C';
+
+    public const DEFAULT_SECONDARY = '#64748B';
+
+    /**
+     * Preset template warna (urutan: Spinly default dulu).
+     *
+     * @return list<array{name:string,primary_color:string,secondary_color:string}>
+     */
+    public static function presets(): array
+    {
+        return [
+            ['name' => 'Spinly', 'primary_color' => self::DEFAULT_PRIMARY, 'secondary_color' => self::DEFAULT_SECONDARY],
+            ['name' => 'Ocean Blue', 'primary_color' => '#2563EB', 'secondary_color' => '#64748B'],
+            ['name' => 'Teal Soft', 'primary_color' => '#278074', 'secondary_color' => '#627589'],
+            ['name' => 'Forest', 'primary_color' => '#2F6B4F', 'secondary_color' => '#6B7280'],
+            ['name' => 'Slate Navy', 'primary_color' => '#334155', 'secondary_color' => '#78716C'],
+            ['name' => 'Rose Soft', 'primary_color' => '#BE5A6B', 'secondary_color' => '#6B7280'],
+            ['name' => 'Amber Warm', 'primary_color' => '#B45309', 'secondary_color' => '#57534E'],
+        ];
+    }
+
     /**
      * Bangun skala warna (50–900) dari hex utama.
      *
