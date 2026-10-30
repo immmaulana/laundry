@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItemLine;
 use App\Models\Plan;
+use App\Support\PlanIcons;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +20,16 @@ class KasirController extends Controller
     public function index(): Response
     {
         return Inertia::render('Kasir/Index', [
-            'plans' => Plan::orderBy('price')->get(['id', 'code', 'plan', 'price', 'description']),
+            'plans' => Plan::orderBy('price')->get()->map(fn (Plan $plan) => [
+                'id' => $plan->id,
+                'code' => $plan->code,
+                'plan' => $plan->plan,
+                'price' => $plan->price,
+                'description' => $plan->description,
+                'icon' => $plan->icon ?: 'wash',
+                'icon_label' => PlanIcons::OPTIONS[$plan->icon ?? 'wash'] ?? 'Layanan',
+                'logo_url' => $plan->logo_url,
+            ]),
             'customers' => Customer::orderBy('name')->get(['id', 'name', 'phone']),
             'todayCount' => Order::whereDate('created_at', today())->count(),
         ]);

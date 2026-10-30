@@ -2,6 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    /* Default Laundry Soft — diganti per perusahaan via JS */
+    --brand-50: 240 250 248;
+    --brand-100: 216 243 238;
+    --brand-200: 179 230 220;
+    --brand-300: 130 211 197;
+    --brand-400: 79 184 168;
+    --brand-500: 52 159 143;
+    --brand-600: 39 128 116;
+    --brand-700: 35 103 94;
+    --brand-800: 32 83 76;
+    --brand-900: 30 69 64;
+
+    --soft-50: 247 248 250;
+    --soft-100: 238 241 245;
+    --soft-200: 221 227 235;
+    --soft-300: 195 205 217;
+    --soft-400: 154 171 189;
+    --soft-500: 122 143 165;
+    --soft-600: 98 117 137;
+    --soft-700: 81 96 112;
+    --soft-800: 70 81 94;
+    --soft-900: 61 69 80;
+
+    --soft-mesh: radial-gradient(ellipse 80% 50% at 0% -20%, rgba(52, 159, 143, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(122, 143, 165, 0.1), transparent),
+        linear-gradient(180deg, #f7f8fa 0%, #eef1f5 100%);
+}
+
 @layer base {
     body {
         @apply bg-soft-mesh text-soft-900 antialiased;
@@ -31,5 +60,17 @@
 
     .label-field {
         @apply mb-1.5 block text-sm font-medium text-soft-700;
+    }
+
+    .touch-target {
+        @apply inline-flex min-h-11 min-w-11 items-center justify-center;
+    }
+
+    .touch-btn {
+        @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition active:scale-[0.98];
+    }
+
+    .table-scroll {
+        @apply -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0;
     }
 }

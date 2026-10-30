@@ -5,10 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Order;
-use App\Models\Plan;
 use App\Models\User;
+use App\Support\ThemePalette;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -34,6 +35,9 @@ class CompanyController extends Controller
                 'city' => $company->city,
                 'address' => $company->address,
                 'is_active' => $company->is_active,
+                'primary_color' => $company->primary_color,
+                'secondary_color' => $company->secondary_color,
+                'logo_url' => $company->logo_url,
                 'users_count' => $company->users_count,
                 'customers_count' => $company->customers_count,
                 'plans_count' => $company->plans_count,
@@ -58,6 +62,7 @@ class CompanyController extends Controller
 
         return Inertia::render('Companies/Form', [
             'company' => null,
+            'presets' => $this->presets(),
         ]);
     }
 
@@ -66,8 +71,8 @@ class CompanyController extends Controller
         abort_unless(auth()->user()->isSuperAdmin(), 403);
 
         $data = $this->validated($request);
-
         $company = Company::create($data + ['is_active' => true]);
+        $this->storeLogo($request, $company);
 
         if ($request->filled('admin_name') && $request->filled('admin_email')) {
             $request->validate([
@@ -100,9 +105,14 @@ class CompanyController extends Controller
         );
 
         return Inertia::render('Companies/Form', [
-            'company' => $company->only([
-                'id', 'name', 'slug', 'code', 'phone', 'email', 'address', 'city', 'is_active',
-            ]),
+            'company' => [
+                ...$company->only([
+                    'id', 'name', 'slug', 'code', 'phone', 'email', 'address', 'city', 'is_active',
+                    'primary_color', 'secondary_color',
+                ]),
+                'logo_url' => $company->logo_url,
+            ],
+            'presets' => $this->presets(),
         ]);
     }
 
@@ -122,6 +132,12 @@ class CompanyController extends Controller
         }
 
         $company->update($data);
+        $this->storeLogo($request, $company);
+
+        if ($request->boolean('remove_logo') && ! $request->hasFile('logo')) {
+            $this->deleteLogo($company);
+            $company->update(['logo' => null]);
+        }
 
         $redirect = $user->isSuperAdmin()
             ? route('companies.index')
@@ -138,6 +154,7 @@ class CompanyController extends Controller
             return back()->with('error', 'Tidak bisa hapus: masih ada pesanan. Nonaktifkan saja.');
         }
 
+        $this->deleteLogo($company);
         $company->delete();
 
         return redirect()->route('companies.index')->with('success', 'Perusahaan dihapus.');
@@ -162,12 +179,51 @@ class CompanyController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:100'],
             'is_active' => ['nullable', 'boolean'],
+            'primary_color' => ['nullable', 'string', 'regex:/^#?[0-9A-Fa-f]{6}$/'],
+            'secondary_color' => ['nullable', 'string', 'regex:/^#?[0-9A-Fa-f]{6}$/'],
+            'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,svg', 'max:2048'],
+            'remove_logo' => ['nullable', 'boolean'],
         ]);
+
+        unset($data['logo'], $data['remove_logo']);
 
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
         $data['code'] = strtoupper($data['code']);
-        $data['is_active'] = (bool) ($data['is_active'] ?? true);
+        $data['is_active'] = filter_var($data['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        $data['primary_color'] = ThemePalette::normalize($data['primary_color'] ?? '#278074');
+        $data['secondary_color'] = ThemePalette::normalize($data['secondary_color'] ?? '#627589');
 
         return $data;
+    }
+
+    private function storeLogo(Request $request, Company $company): void
+    {
+        if (! $request->hasFile('logo')) {
+            return;
+        }
+
+        $this->deleteLogo($company);
+
+        $path = $request->file('logo')->store('logos/'.$company->id, 'public');
+        $company->update(['logo' => $path]);
+    }
+
+    private function deleteLogo(Company $company): void
+    {
+        if ($company->logo && Storage::disk('public')->exists($company->logo)) {
+            Storage::disk('public')->delete($company->logo);
+        }
+    }
+
+    private function presets(): array
+    {
+        return [
+            ['name' => 'Teal Soft', 'primary_color' => '#278074', 'secondary_color' => '#627589'],
+            ['name' => 'Ocean Blue', 'primary_color' => '#2563EB', 'secondary_color' => '#64748B'],
+            ['name' => 'Forest', 'primary_color' => '#2F6B4F', 'secondary_color' => '#6B7280'],
+            ['name' => 'Slate Navy', 'primary_color' => '#334155', 'secondary_color' => '#78716C'],
+            ['name' => 'Rose Soft', 'primary_color' => '#BE5A6B', 'secondary_color' => '#6B7280'],
+            ['name' => 'Amber Warm', 'primary_color' => '#B45309', 'secondary_color' => '#57534E'],
+        ];
     }
 }

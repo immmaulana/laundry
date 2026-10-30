@@ -70,10 +70,28 @@ const toggle = (company) => {
                     <tbody class="divide-y divide-soft-100">
                         <tr v-for="company in companies" :key="company.id" class="hover:bg-soft-50/50">
                             <td class="px-5 py-4">
-                                <p class="font-semibold text-soft-900">{{ company.name }}</p>
-                                <p class="text-xs text-soft-500">
-                                    {{ company.code }} · {{ company.email || '—' }}
-                                </p>
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-soft ring-1 ring-black/5"
+                                        :style="company.logo_url ? {} : { background: company.primary_color || '#278074' }"
+                                    >
+                                        <img
+                                            v-if="company.logo_url"
+                                            :src="company.logo_url"
+                                            :alt="company.name"
+                                            class="h-full w-full bg-white object-contain p-1"
+                                        />
+                                        <span v-else class="text-[10px] font-bold text-white">
+                                            {{ company.code?.slice(0, 2) }}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-soft-900">{{ company.name }}</p>
+                                        <p class="text-xs text-soft-500">
+                                            {{ company.code }} · {{ company.email || '—' }}
+                                        </p>
+                                    </div>
+                                </div>
                             </td>
                             <td class="px-5 py-4 text-soft-600">{{ company.city || '—' }}</td>
                             <td class="px-5 py-4 text-soft-600">

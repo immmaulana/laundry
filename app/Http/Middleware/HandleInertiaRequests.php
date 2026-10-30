@@ -36,6 +36,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $company->name,
                     'code' => $company->code,
                     'city' => $company->city,
+                    ...$company->themePayload(),
                 ] : null,
             ],
             'flash' => [

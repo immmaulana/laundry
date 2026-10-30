@@ -9,6 +9,7 @@ use App\Http\Controllers\OrderItemLineController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\PlanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QueueController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -50,6 +51,9 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:admin,kasir')->group(function () {
         Route::get('kasir', [KasirController::class, 'index'])->name('kasir.index');
         Route::post('kasir', [KasirController::class, 'store'])->name('kasir.store');
+
+        Route::get('antrian', [QueueController::class, 'index'])->name('queue.index');
+        Route::patch('antrian/{order}/status', [QueueController::class, 'updateStatus'])->name('queue.status');
 
         Route::resource('order', OrderController::class)->except(['show']);
         Route::post('order/{order}/item-line', [OrderItemLineController::class, 'store'])->name('order.item.store');

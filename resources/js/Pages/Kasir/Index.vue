@@ -1,5 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import PlanIcon from '@/Components/PlanIcon.vue';
 import { money } from '@/Composables/format';
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
@@ -11,6 +12,8 @@ const props = defineProps({
 });
 
 const cart = ref([]);
+const search = ref('');
+const category = ref('all');
 const form = useForm({
     customer_id: '',
     name: '',
@@ -19,6 +22,30 @@ const form = useForm({
     discount: 0,
     payment_method: 'cash',
     paid: 0,
+});
+
+const categories = computed(() => {
+    const seen = new Map();
+    for (const plan of props.plans) {
+        const key = plan.icon || 'wash';
+        if (!seen.has(key)) {
+            seen.set(key, plan.icon_label || key);
+        }
+    }
+    return [{ key: 'all', label: 'Semua' }, ...[...seen.entries()].map(([key, label]) => ({ key, label }))];
+});
+
+const filteredPlans = computed(() => {
+    const q = search.value.trim().toLowerCase();
+    return props.plans.filter((plan) => {
+        const matchCat = category.value === 'all' || (plan.icon || 'wash') === category.value;
+        if (!matchCat) return false;
+        if (!q) return true;
+        return (
+            plan.plan?.toLowerCase().includes(q) ||
+            plan.code?.toLowerCase().includes(q)
+        );
+    });
 });
 
 const subtotal = computed(() =>
@@ -30,6 +57,8 @@ const subtotal = computed(() =>
 
 const total = computed(() => Math.max(0, subtotal.value - Number(form.discount || 0)));
 
+const planOf = (id) => props.plans.find((p) => p.id === id);
+
 const addPlan = (plan) => {
     const existing = cart.value.find((row) => row.plan_id === plan.id);
     if (existing) {
@@ -39,8 +68,21 @@ const addPlan = (plan) => {
     }
 };
 
+const bumpQty = (index, delta) => {
+    const row = cart.value[index];
+    if (!row) return;
+    row.qty = Math.max(1, row.qty + delta);
+};
+
 const removeRow = (index) => {
     cart.value.splice(index, 1);
+};
+
+const setPayment = (method) => {
+    form.payment_method = method;
+    if (!form.paid) {
+        form.paid = total.value;
+    }
 };
 
 const submit = () => {
@@ -69,89 +111,188 @@ const submit = () => {
             </div>
         </template>
 
-        <div class="grid gap-6 lg:grid-cols-5">
-            <div class="space-y-4 lg:col-span-3">
-                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    <button
-                        v-for="plan in plans"
-                        :key="plan.id"
-                        type="button"
-                        class="card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-soft-lg"
-                        @click="addPlan(plan)"
-                    >
-                        <p class="text-xs font-semibold uppercase tracking-wide text-brand-600">{{ plan.code }}</p>
-                        <p class="mt-1 font-bold text-soft-900">{{ plan.plan }}</p>
-                        <p class="mt-2 text-sm text-soft-600">{{ money(plan.price) }}</p>
-                    </button>
+        <!--
+          Mobile: stack. Tablet+: side-by-side.
+          Desktop: gunakan tinggi dinamis + panel kanan bisa scroll agar tombol bayar selalu terlihat.
+        -->
+        <div
+            class="flex flex-col gap-5 xl:gap-6 lg:grid lg:h-[calc(100dvh-9rem)] lg:min-h-[32rem] lg:grid-cols-[minmax(0,1fr)_minmax(20rem,24rem)] xl:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-stretch lg:gap-6"
+        >
+            <!-- Katalog -->
+            <div class="flex min-h-0 min-w-0 flex-col gap-4 lg:overflow-hidden">
+                <div class="shrink-0 space-y-3">
+                    <input
+                        v-model="search"
+                        type="search"
+                        class="input-field min-h-11 w-full"
+                        placeholder="Cari nama atau kode layanan..."
+                    />
+
+                    <div class="flex gap-2 overflow-x-auto pb-1">
+                        <button
+                            v-for="cat in categories"
+                            :key="cat.key"
+                            type="button"
+                            class="touch-btn shrink-0 rounded-full border px-4 text-sm"
+                            :class="
+                                category === cat.key
+                                    ? 'border-brand-300 bg-brand-50 text-brand-800'
+                                    : 'border-soft-200 bg-white text-soft-600 hover:bg-soft-50'
+                            "
+                            @click="category = cat.key"
+                        >
+                            {{ cat.label }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="min-h-0 flex-1 lg:overflow-y-auto lg:pr-1">
+                    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                        <button
+                            v-for="plan in filteredPlans"
+                            :key="plan.id"
+                            type="button"
+                            class="card flex min-h-[7rem] flex-col items-start gap-2.5 p-3.5 text-left transition active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-soft-lg sm:min-h-[8rem] sm:p-4 xl:min-h-[8.5rem] xl:p-5"
+                            @click="addPlan(plan)"
+                        >
+                            <PlanIcon :name="plan.icon || 'wash'" :logo-url="plan.logo_url" />
+                            <div class="min-w-0 w-full">
+                                <p class="text-[11px] font-semibold uppercase tracking-wide text-brand-600">{{ plan.code }}</p>
+                                <p class="mt-1 line-clamp-2 font-bold leading-snug text-soft-900">{{ plan.plan }}</p>
+                                <p class="mt-2 text-sm font-semibold text-soft-700 sm:text-base">{{ money(plan.price) }}</p>
+                            </div>
+                        </button>
+                    </div>
+                    <p v-if="!filteredPlans.length" class="py-12 text-center text-sm text-soft-400">
+                        Tidak ada layanan yang cocok
+                    </p>
                 </div>
             </div>
 
-            <form class="card space-y-4 p-5 lg:col-span-2" @submit.prevent="submit">
-                <h2 class="font-semibold text-soft-900">Checkout</h2>
+            <!-- Checkout: di desktop tinggi penuh + scroll internal, footer bayar sticky -->
+            <form
+                class="card flex w-full min-h-0 flex-col overflow-hidden lg:h-full"
+                @submit.prevent="submit"
+            >
+                <div class="min-h-0 flex-1 space-y-3 overflow-y-auto p-4 xl:p-5">
+                    <h2 class="text-base font-bold text-soft-900">Keranjang</h2>
 
-                <div>
-                    <label class="label-field">Pelanggan</label>
-                    <select v-model="form.customer_id" class="input-field">
-                        <option value="">Pelanggan baru...</option>
-                        <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
-                    </select>
-                </div>
-
-                <div v-if="!form.customer_id" class="grid gap-3 sm:grid-cols-2">
-                    <input v-model="form.name" type="text" class="input-field" placeholder="Nama" required />
-                    <input v-model="form.phone" type="text" class="input-field" placeholder="Telepon" required />
-                </div>
-
-                <div class="space-y-2 rounded-2xl bg-soft-50 p-3">
-                    <div
-                        v-for="(row, index) in cart"
-                        :key="`${row.plan_id}-${index}`"
-                        class="flex items-center justify-between gap-2 text-sm"
-                    >
-                        <div>
-                            <p class="font-medium text-soft-800">
-                                {{ plans.find((p) => p.id === row.plan_id)?.plan }}
-                            </p>
-                            <div class="mt-1 flex items-center gap-2">
-                                <input v-model.number="row.qty" type="number" min="1" class="input-field w-20 py-1" />
-                                <button type="button" class="text-xs text-rose-600" @click="removeRow(index)">Hapus</button>
-                            </div>
-                        </div>
-                        <p class="font-semibold">
-                            {{ money((plans.find((p) => p.id === row.plan_id)?.price || 0) * row.qty) }}
-                        </p>
-                    </div>
-                    <p v-if="!cart.length" class="text-sm text-soft-400">Pilih layanan di kiri</p>
-                </div>
-
-                <div class="grid gap-3 sm:grid-cols-2">
                     <div>
-                        <label class="label-field">Diskon</label>
-                        <input v-model="form.discount" type="number" min="0" class="input-field" />
-                    </div>
-                    <div>
-                        <label class="label-field">Metode</label>
-                        <select v-model="form.payment_method" class="input-field">
-                            <option value="cash">Tunai</option>
-                            <option value="qris">QRIS</option>
-                            <option value="transfer">Transfer</option>
+                        <label class="label-field">Pelanggan</label>
+                        <select v-model="form.customer_id" class="input-field min-h-11">
+                            <option value="">Pelanggan baru...</option>
+                            <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }}</option>
                         </select>
                     </div>
+
+                    <div v-if="!form.customer_id" class="grid gap-3 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                        <input v-model="form.name" type="text" class="input-field min-h-11" placeholder="Nama" required />
+                        <input v-model="form.phone" type="text" class="input-field min-h-11" placeholder="Telepon" required />
+                    </div>
+
+                    <div class="space-y-2 rounded-2xl bg-soft-50 p-3">
+                        <div
+                            v-for="(row, index) in cart"
+                            :key="`${row.plan_id}-${index}`"
+                            class="rounded-xl bg-white p-3 shadow-soft"
+                        >
+                            <div class="flex items-start gap-2">
+                                <PlanIcon
+                                    :name="planOf(row.plan_id)?.icon || 'wash'"
+                                    :logo-url="planOf(row.plan_id)?.logo_url"
+                                    size="sm"
+                                />
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-semibold text-soft-800">{{ planOf(row.plan_id)?.plan }}</p>
+                                    <p class="text-xs text-soft-500">{{ money(planOf(row.plan_id)?.price || 0) }} / item</p>
+                                </div>
+                                <button type="button" class="touch-target text-rose-500" @click="removeRow(index)">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="mt-3 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        class="touch-target rounded-xl border border-soft-200 bg-soft-50 text-lg font-bold text-soft-700 active:scale-95"
+                                        @click="bumpQty(index, -1)"
+                                    >
+                                        −
+                                    </button>
+                                    <span class="min-w-[2rem] text-center text-base font-bold">{{ row.qty }}</span>
+                                    <button
+                                        type="button"
+                                        class="touch-target rounded-xl border border-soft-200 bg-soft-50 text-lg font-bold text-soft-700 active:scale-95"
+                                        @click="bumpQty(index, 1)"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                <p class="font-bold text-soft-900">
+                                    {{ money((planOf(row.plan_id)?.price || 0) * row.qty) }}
+                                </p>
+                            </div>
+                        </div>
+                        <p v-if="!cart.length" class="py-6 text-center text-sm text-soft-400">Ketuk layanan di kiri</p>
+                    </div>
+
+                    <div>
+                        <label class="label-field">Diskon (Rp)</label>
+                        <input v-model="form.discount" type="number" min="0" class="input-field min-h-11" />
+                    </div>
+
+                    <div>
+                        <p class="label-field">Metode bayar</p>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button
+                                v-for="m in [
+                                    { key: 'cash', label: 'Tunai' },
+                                    { key: 'qris', label: 'QRIS' },
+                                    { key: 'transfer', label: 'Transfer' },
+                                ]"
+                                :key="m.key"
+                                type="button"
+                                class="touch-btn border"
+                                :class="
+                                    form.payment_method === m.key
+                                        ? 'border-brand-400 bg-brand-50 text-brand-800'
+                                        : 'border-soft-200 bg-white text-soft-600'
+                                "
+                                @click="setPayment(m.key)"
+                            >
+                                {{ m.label }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="label-field">Dibayar</label>
+                        <input
+                            v-model="form.paid"
+                            type="number"
+                            min="0"
+                            class="input-field min-h-11 text-lg font-semibold"
+                            :placeholder="String(total)"
+                        />
+                    </div>
                 </div>
 
-                <div>
-                    <label class="label-field">Dibayar</label>
-                    <input v-model="form.paid" type="number" min="0" class="input-field" :placeholder="String(total)" />
-                </div>
+                <div class="shrink-0 space-y-3 border-t border-soft-100 bg-white p-4 xl:p-5">
+                    <div class="rounded-2xl bg-brand-600 px-4 py-3 text-white shadow-soft sm:py-4">
+                        <p class="text-sm text-brand-100">Total bayar</p>
+                        <p class="text-2xl font-bold tracking-tight sm:text-3xl">{{ money(total) }}</p>
+                    </div>
 
-                <div class="rounded-2xl bg-brand-50 px-4 py-3">
-                    <p class="text-sm text-brand-700">Total bayar</p>
-                    <p class="text-2xl font-bold text-brand-900">{{ money(total) }}</p>
+                    <button
+                        type="submit"
+                        class="btn-primary min-h-12 w-full text-base active:scale-[0.98]"
+                        :disabled="form.processing || !cart.length"
+                    >
+                        {{ form.processing ? 'Menyimpan...' : 'Bayar & simpan' }}
+                    </button>
                 </div>
-
-                <button type="submit" class="btn-primary w-full" :disabled="form.processing || !cart.length">
-                    Simpan transaksi
-                </button>
             </form>
         </div>
     </AuthenticatedLayout>

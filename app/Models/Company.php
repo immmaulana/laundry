@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Support\ThemePalette;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Company extends Model
 {
@@ -19,6 +21,13 @@ class Company extends Model
         'address',
         'city',
         'is_active',
+        'primary_color',
+        'secondary_color',
+        'logo',
+    ];
+
+    protected $appends = [
+        'logo_url',
     ];
 
     protected function casts(): array
@@ -46,5 +55,23 @@ class Company extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (! $this->logo) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->logo);
+    }
+
+    public function themePayload(): array
+    {
+        return [
+            'primary_color' => ThemePalette::normalize($this->primary_color ?: '#278074'),
+            'secondary_color' => ThemePalette::normalize($this->secondary_color ?: '#627589'),
+            'logo_url' => $this->logo_url,
+        ];
     }
 }

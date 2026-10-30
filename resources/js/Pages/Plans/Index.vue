@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import PlanIcon from '@/Components/PlanIcon.vue';
 import { money } from '@/Composables/format';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
@@ -42,13 +43,18 @@ const destroy = (id) => {
 
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <div v-for="plan in plans.data" :key="plan.id" class="card p-5">
-                    <div class="flex items-start justify-between gap-3">
-                        <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-brand-600">{{ plan.code }}</p>
-                            <h3 class="mt-1 text-lg font-bold text-soft-900">{{ plan.plan }}</h3>
-                            <p class="mt-1 text-sm text-soft-500">{{ plan.description || '—' }}</p>
+                    <div class="flex items-start gap-4">
+                        <PlanIcon :name="plan.icon || 'wash'" :logo-url="plan.logo_url" size="lg" />
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-brand-600">{{ plan.code }}</p>
+                                    <h3 class="mt-1 text-lg font-bold text-soft-900">{{ plan.plan }}</h3>
+                                    <p class="mt-1 text-sm text-soft-500">{{ plan.description || '—' }}</p>
+                                </div>
+                                <p class="shrink-0 text-base font-bold text-soft-900">{{ money(plan.price) }}</p>
+                            </div>
                         </div>
-                        <p class="text-base font-bold text-soft-900">{{ money(plan.price) }}</p>
                     </div>
                     <div class="mt-4 flex gap-3 border-t border-soft-100 pt-4">
                         <Link :href="route('plan.edit', plan.id)" class="text-sm font-semibold text-brand-700">Edit</Link>

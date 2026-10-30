@@ -30,56 +30,61 @@ defineProps({
         </template>
 
         <div class="space-y-6">
-            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <div class="card p-5">
+            <div class="mb-1 flex flex-wrap gap-2">
+                <Link :href="route('kasir.index')" class="btn-primary min-h-11">Buka Kasir</Link>
+                <Link :href="route('queue.index')" class="btn-secondary min-h-11">Papan Antrian</Link>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 md:gap-4 xl:grid-cols-4">
+                <div class="card p-4 md:p-5">
                     <p class="text-sm text-soft-500">Pendapatan hari ini</p>
-                    <p class="mt-2 text-2xl font-bold tracking-tight text-soft-900">{{ money(todayRevenue) }}</p>
+                    <p class="mt-2 text-xl font-bold tracking-tight text-soft-900 md:text-2xl">{{ money(todayRevenue) }}</p>
                     <p class="mt-1 text-xs text-soft-400">{{ todayOrders }} pesanan</p>
                 </div>
-                <div class="card p-5">
+                <div class="card p-4 md:p-5">
                     <p class="text-sm text-soft-500">Omzet bulan ini</p>
-                    <p class="mt-2 text-2xl font-bold tracking-tight text-soft-900">{{ money(revenue) }}</p>
+                    <p class="mt-2 text-xl font-bold tracking-tight text-soft-900 md:text-2xl">{{ money(revenue) }}</p>
                     <p class="mt-1 text-xs text-soft-400">Tertagih {{ money(billed) }}</p>
                 </div>
-                <div class="card p-5">
+                <div class="card p-4 md:p-5">
                     <p class="text-sm text-soft-500">Piutang</p>
-                    <p class="mt-2 text-2xl font-bold tracking-tight text-amber-700">{{ money(outstanding) }}</p>
+                    <p class="mt-2 text-xl font-bold tracking-tight text-amber-700 md:text-2xl">{{ money(outstanding) }}</p>
                     <p class="mt-1 text-xs text-soft-400">Belum tertagih penuh</p>
                 </div>
-                <div class="card p-5">
+                <div class="card p-4 md:p-5">
                     <p class="text-sm text-soft-500">Antrian aktif</p>
-                    <p class="mt-2 text-2xl font-bold tracking-tight text-brand-700">
+                    <p class="mt-2 text-xl font-bold tracking-tight text-brand-700 md:text-2xl">
                         {{ (counts.todo || 0) + (counts.in_progress || 0) }}
                     </p>
                     <p class="mt-1 text-xs text-soft-400">Todo + proses</p>
                 </div>
             </div>
 
-            <div class="grid gap-6 lg:grid-cols-5">
-                <div class="card p-5 lg:col-span-3">
+            <div class="grid gap-6 md:grid-cols-5">
+                <div class="card overflow-hidden p-4 md:col-span-3 md:p-5">
                     <div class="mb-5 flex items-center justify-between">
                         <div>
                             <h2 class="font-semibold text-soft-900">Pendapatan 7 hari</h2>
                             <p class="text-sm text-soft-500">Tren kas masuk harian</p>
                         </div>
                     </div>
-                    <div class="flex h-44 items-end gap-2">
+                    <div class="flex h-40 max-w-full items-end gap-1.5 overflow-hidden sm:h-44 sm:gap-2">
                         <div
                             v-for="(point, i) in series"
                             :key="i"
-                            class="group flex flex-1 flex-col items-center justify-end gap-2"
+                            class="group flex min-w-0 flex-1 flex-col items-center justify-end gap-2"
                         >
                             <div
-                                class="w-full rounded-t-xl bg-gradient-to-t from-brand-600 to-brand-300 transition group-hover:from-brand-700 group-hover:to-brand-400"
-                                :style="{ height: `${Math.max(8, (point.value / maxSeries) * 100)}%` }"
+                                class="w-full max-w-[3rem] rounded-t-xl bg-gradient-to-t from-brand-600 to-brand-300 transition group-hover:from-brand-700 group-hover:to-brand-400"
+                                :style="{ height: `${Math.max(8, (point.value / (maxSeries || 1)) * 100)}%` }"
                                 :title="money(point.value)"
                             />
-                            <span class="text-[11px] font-medium text-soft-500">{{ point.label }}</span>
+                            <span class="truncate text-[10px] font-medium text-soft-500 sm:text-[11px]">{{ point.label }}</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="card p-5 lg:col-span-2">
+                <div class="card p-4 md:col-span-2 md:p-5">
                     <h2 class="font-semibold text-soft-900">Status pesanan</h2>
                     <p class="mb-4 text-sm text-soft-500">Bulan berjalan</p>
                     <div class="space-y-3">

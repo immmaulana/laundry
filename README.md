@@ -13,6 +13,9 @@ Satu platform bisa dipakai banyak PT/tenant; setiap perusahaan punya data, karya
 - Manajemen pesanan, pelanggan, layanan & harga
 - Laporan (admin PT)
 - Karyawan & role (`super_admin`, `admin`, `kasir`)
+- Tema warna panel per PT (atur di **Profil PT** / edit perusahaan)
+- Upload logo perusahaan (tampil di sidebar admin)
+- Ikon / logo layanan (preset + upload custom, tampil di Kasir & daftar layanan)
 
 ## Stack
 

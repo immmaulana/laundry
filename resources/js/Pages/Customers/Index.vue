@@ -42,35 +42,54 @@ const destroy = (id) => {
                 <Link :href="route('customer.create')" class="btn-primary">Tambah pelanggan</Link>
             </div>
 
-            <div class="card overflow-hidden">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-soft-50/80 text-left text-xs uppercase tracking-wide text-soft-500">
-                        <tr>
-                            <th class="px-5 py-3 font-semibold">Nama</th>
-                            <th class="px-5 py-3 font-semibold">Telepon</th>
-                            <th class="px-5 py-3 font-semibold">Alamat</th>
-                            <th class="px-5 py-3 font-semibold" />
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-soft-100">
-                        <tr v-for="customer in customers.data" :key="customer.id" class="hover:bg-soft-50/50">
-                            <td class="px-5 py-3 font-medium text-soft-900">{{ customer.name }}</td>
-                            <td class="px-5 py-3 text-soft-600">{{ customer.phone }}</td>
-                            <td class="px-5 py-3 text-soft-500">{{ customer.address || '—' }}</td>
-                            <td class="px-5 py-3 text-right">
-                                <Link :href="route('customer.edit', customer.id)" class="mr-3 text-sm font-semibold text-brand-700">
-                                    Edit
-                                </Link>
-                                <button type="button" class="text-sm font-semibold text-rose-600" @click="destroy(customer.id)">
-                                    Hapus
-                                </button>
-                            </td>
-                        </tr>
-                        <tr v-if="!customers.data.length">
-                            <td colspan="4" class="px-5 py-10 text-center text-soft-400">Belum ada data</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="space-y-3 md:hidden">
+                <article
+                    v-for="customer in customers.data"
+                    :key="`m-${customer.id}`"
+                    class="card p-4"
+                >
+                    <p class="font-bold text-soft-900">{{ customer.name }}</p>
+                    <p class="mt-1 text-sm text-soft-600">{{ customer.phone }}</p>
+                    <p class="mt-1 text-sm text-soft-500">{{ customer.address || '—' }}</p>
+                    <div class="mt-3 flex gap-2">
+                        <Link :href="route('customer.edit', customer.id)" class="btn-secondary min-h-11 flex-1 text-center">Edit</Link>
+                        <button type="button" class="btn-danger min-h-11" @click="destroy(customer.id)">Hapus</button>
+                    </div>
+                </article>
+                <p v-if="!customers.data.length" class="card py-10 text-center text-soft-400">Belum ada data</p>
+            </div>
+
+            <div class="card hidden overflow-hidden md:block">
+                <div class="table-scroll">
+                    <table class="min-w-[520px] w-full text-sm">
+                        <thead class="bg-soft-50/80 text-left text-xs uppercase tracking-wide text-soft-500">
+                            <tr>
+                                <th class="px-5 py-3 font-semibold">Nama</th>
+                                <th class="px-5 py-3 font-semibold">Telepon</th>
+                                <th class="px-5 py-3 font-semibold">Alamat</th>
+                                <th class="px-5 py-3 font-semibold" />
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-soft-100">
+                            <tr v-for="customer in customers.data" :key="customer.id" class="hover:bg-soft-50/50">
+                                <td class="px-5 py-3 font-medium text-soft-900">{{ customer.name }}</td>
+                                <td class="px-5 py-3 text-soft-600">{{ customer.phone }}</td>
+                                <td class="px-5 py-3 text-soft-500">{{ customer.address || '—' }}</td>
+                                <td class="px-5 py-3 text-right">
+                                    <Link :href="route('customer.edit', customer.id)" class="mr-3 text-sm font-semibold text-brand-700">
+                                        Edit
+                                    </Link>
+                                    <button type="button" class="text-sm font-semibold text-rose-600" @click="destroy(customer.id)">
+                                        Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr v-if="!customers.data.length">
+                                <td colspan="4" class="px-5 py-10 text-center text-soft-400">Belum ada data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <Pagination :links="customers.links" />
