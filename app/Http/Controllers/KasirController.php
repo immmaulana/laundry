@@ -8,21 +8,24 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderItemLine;
 use App\Models\Plan;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class KasirController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
-        return view('pages.kasir', [
-            'plans' => Plan::orderBy('price')->get(),
-            'customers' => Customer::orderBy('name')->get(),
+        return Inertia::render('Kasir/Index', [
+            'plans' => Plan::orderBy('price')->get(['id', 'code', 'plan', 'price', 'description']),
+            'customers' => Customer::orderBy('name')->get(['id', 'name', 'phone']),
             'todayCount' => Order::whereDate('created_at', today())->count(),
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'customer_id' => ['nullable', 'exists:customers,id'],
@@ -40,11 +43,12 @@ class KasirController extends Controller
             DB::beginTransaction();
 
             $customerId = $data['customer_id'] ?? null;
-            if (!$customerId) {
+            if (! $customerId) {
                 $customerId = Customer::create([
                     'name' => $data['name'],
                     'phone' => $data['phone'],
                     'user_id' => auth()->id(),
+                    'company_id' => auth()->user()->company_id,
                 ])->id;
             }
 
@@ -78,15 +82,16 @@ class KasirController extends Controller
                 'order_status' => OrderStatus::TODO->value,
                 'customer_id' => $customerId,
                 'user_id' => auth()->id(),
+                'company_id' => auth()->user()->company_id,
             ]);
 
-            foreach ($lines as $l) {
+            foreach ($lines as $line) {
                 OrderItemLine::create([
-                    'price' => $l['plan']->price,
-                    'quantity' => $l['qty'],
-                    'subtotal' => $l['subtotal'],
-                    'description' => $l['plan']->plan . ' ' . $l['qty'] . ' ' . ($l['plan']->description ?? ''),
-                    'plan_id' => $l['plan']->id,
+                    'price' => $line['plan']->price,
+                    'quantity' => $line['qty'],
+                    'subtotal' => $line['subtotal'],
+                    'description' => $line['plan']->plan.' '.$line['qty'].' '.($line['plan']->description ?? ''),
+                    'plan_id' => $line['plan']->id,
                     'order_id' => $order->id,
                 ]);
             }
@@ -94,10 +99,11 @@ class KasirController extends Controller
             DB::commit();
 
             return redirect()->route('kasir.index')
-                ->with('success', 'Pesanan #' . $order->id . ' tersimpan · Rp ' . number_format($total, 0, ',', '.'));
+                ->with('success', 'Pesanan #'.$order->id.' tersimpan · Rp '.number_format($total, 0, ',', '.'));
         } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->with('error', 'Gagal menyimpan: ' . $th->getMessage());
+
+            return back()->with('error', 'Gagal menyimpan: '.$th->getMessage());
         }
     }
 }

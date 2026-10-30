@@ -4,17 +4,26 @@ namespace App\Enums;
 
 enum PaymentStatus: string
 {
-    case PENDING    = 'pending';
-    case PARTIAL    = 'partial';
-    case PAID       = 'paid';
+    case PENDING = 'pending';
+    case PARTIAL = 'partial';
+    case PAID = 'paid';
 
-    public static function options()
+    public function label(): string
     {
-        $optionPathPayment = 'table.column.status.payment.';
-        return [
-            PaymentStatus::PENDING->value => __($optionPathPayment . PaymentStatus::PENDING->value),
-            PaymentStatus::PARTIAL->value => __($optionPathPayment . PaymentStatus::PARTIAL->value),
-            PaymentStatus::PAID->value => __($optionPathPayment . PaymentStatus::PAID->value),
-        ];
+        return match ($this) {
+            self::PENDING => 'Belum bayar',
+            self::PARTIAL => 'DP / Sebagian',
+            self::PAID => 'Lunas',
+        };
+    }
+
+    public static function options(): array
+    {
+        $options = [];
+        foreach (self::cases() as $case) {
+            $options[$case->value] = $case->label();
+        }
+
+        return $options;
     }
 }

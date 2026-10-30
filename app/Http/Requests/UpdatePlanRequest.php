@@ -6,29 +6,18 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePlanRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return auth()->user()->id == $this->user_id;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'code' => 'required',
-            'plan' => ['required', 'string'],
+            'code' => ['required', 'string', 'max:20'],
+            'plan' => ['required', 'string', 'max:100'],
             'price' => ['required', 'numeric', 'gte:0'],
-            'user_id' => 'required',
-            'description' => 'string',
+            'description' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

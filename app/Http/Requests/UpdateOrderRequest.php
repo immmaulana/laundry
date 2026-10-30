@@ -2,36 +2,29 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\OrderStatus;
+use App\Enums\PaymentStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateOrderRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return auth()->user()->id == $this->user_id;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
             'ordered_at' => ['required', 'date'],
-            'finished_at' => ['required', 'date'],
-            'order_status' => ['required'],
-            'payment_status' => ['required'],
-            'total' => ['required', 'numeric', 'gte:0'],
-            'down_payment' => ['required', 'numeric', 'gte:0'],
-            'payment' => ['required', 'numeric', 'gte:0'],
-            'change' => ['required', 'numeric', 'gte:0'],
+            'finished_at' => ['nullable', 'date'],
+            'down_payment' => ['nullable', 'integer', 'min:0'],
+            'payment' => ['nullable', 'integer', 'min:0'],
+            'change' => ['nullable', 'integer', 'min:0'],
+            'payment_status' => ['required', Rule::in(array_column(PaymentStatus::cases(), 'value'))],
+            'order_status' => ['required', Rule::in(array_column(OrderStatus::cases(), 'value'))],
+            'customer_id' => ['required', 'exists:customers,id'],
         ];
     }
 }

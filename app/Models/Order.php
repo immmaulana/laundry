@@ -2,16 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Models\Concerns\BelongsToCompany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    use HasFactory;
+    use BelongsToCompany, HasFactory;
 
     protected $fillable = [
+        'company_id',
         'ordered_at',
         'finished_at',
         'total',
@@ -24,21 +26,26 @@ class Order extends Model
         'user_id',
     ];
 
+    protected $casts = [
+        'ordered_at' => 'date',
+        'finished_at' => 'date',
+    ];
+
     public function scopeCurrentMonthIncome($query)
     {
         return $query
-            ->where('user_id', auth()->user()->id)
             ->where('payment_status', PaymentStatus::PAID)
             ->whereMonth('ordered_at', now()->month)
+            ->whereYear('ordered_at', now()->year)
             ->sum('total');
     }
 
     public function scopeCurrentMonthStatus($query, OrderStatus $status)
     {
         return $query
-            ->where('user_id', auth()->user()->id)
             ->where('order_status', $status)
             ->whereMonth('ordered_at', now()->month)
+            ->whereYear('ordered_at', now()->year)
             ->count();
     }
 
@@ -65,20 +72,21 @@ class Order extends Model
     public function scopeRender($query, $search, $page = 10)
     {
         return $query
-            ->with(['itemLines', 'customer'])
-            ->where('user_id', auth()->user()->id)
+            ->with(['itemLines.plan', 'customer'])
             ->search($search)
-            ->paginate($page)
-            ->appends([
-                'search' => $search,
-                'num_page' => $page,
-            ]);
+            ->orderByDesc('ordered_at')
+            ->orderByDesc('id')
+            ->paginate($page ?: 10)
+            ->withQueryString();
     }
 
     public function scopeSearch($query, $search)
     {
-        return $query->when($search, function($query, $find) {
-            return $query->where('id', $find);
+        return $query->when($search, function ($query, $find) {
+            return $query->where(function ($q) use ($find) {
+                $q->where('id', $find)
+                    ->orWhereHas('customer', fn ($c) => $c->where('name', 'like', "%{$find}%"));
+            });
         });
     }
 

@@ -4,19 +4,28 @@ namespace App\Enums;
 
 enum OrderStatus: string
 {
-    case TODO           = 'todo';
-    case IN_PROGRESS    = 'in_progress';
-    case DONE           = 'done';
-    case COMPLETED      = 'completed';
+    case TODO = 'todo';
+    case IN_PROGRESS = 'in_progress';
+    case DONE = 'done';
+    case COMPLETED = 'completed';
 
-    public static function options()
+    public function label(): string
     {
-        $optionPathOrder = 'table.column.status.order.';
-        return [
-            OrderStatus::TODO->value => __($optionPathOrder . OrderStatus::TODO->value),
-            OrderStatus::IN_PROGRESS->value => __($optionPathOrder . OrderStatus::IN_PROGRESS->value),
-            OrderStatus::DONE->value => __($optionPathOrder . OrderStatus::DONE->value),
-            OrderStatus::COMPLETED->value => __($optionPathOrder . OrderStatus::COMPLETED->value),
-        ];
+        return match ($this) {
+            self::TODO => 'Antrian',
+            self::IN_PROGRESS => 'Proses',
+            self::DONE => 'Selesai',
+            self::COMPLETED => 'Diambil',
+        };
+    }
+
+    public static function options(): array
+    {
+        $options = [];
+        foreach (self::cases() as $case) {
+            $options[$case->value] = $case->label();
+        }
+
+        return $options;
     }
 }

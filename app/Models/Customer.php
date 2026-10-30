@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use BelongsToCompany, HasFactory;
 
     protected $fillable = [
+        'company_id',
         'name',
         'phone',
         'address',
@@ -19,19 +21,19 @@ class Customer extends Model
     public function scopeRender($query, $search, $page = 10)
     {
         return $query
-            ->where('user_id', auth()->user()->id)
             ->search($search)
-            ->paginate($page)
-            ->appends([
-                'search' => $search,
-                'num_page' => $page,
-            ]);
+            ->orderBy('name')
+            ->paginate($page ?: 10)
+            ->withQueryString();
     }
 
     public function scopeSearch($query, $search)
     {
-        return $query->when($search, function($query, $find) {
-            return $query->where('name', 'LIKE', $find . '%');
+        return $query->when($search, function ($query, $find) {
+            return $query->where(function ($q) use ($find) {
+                $q->where('name', 'like', "%{$find}%")
+                    ->orWhere('phone', 'like', "%{$find}%");
+            });
         });
     }
 }

@@ -1,0 +1,138 @@
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import StatusBadge from '@/Components/StatusBadge.vue';
+import { money } from '@/Composables/format';
+import { Head, Link } from '@inertiajs/vue3';
+
+defineProps({
+    billed: Number,
+    revenue: Number,
+    outstanding: Number,
+    counts: Object,
+    todayOrders: Number,
+    todayRevenue: Number,
+    recent: Array,
+    series: Array,
+    maxSeries: Number,
+    statusLabels: Object,
+});
+</script>
+
+<template>
+    <Head title="Dashboard" />
+
+    <AuthenticatedLayout>
+        <template #header>
+            <div>
+                <h1 class="text-lg font-bold text-soft-900">Dashboard</h1>
+                <p class="text-sm text-soft-500">Ringkasan operasional bulan ini</p>
+            </div>
+        </template>
+
+        <div class="space-y-6">
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="card p-5">
+                    <p class="text-sm text-soft-500">Pendapatan hari ini</p>
+                    <p class="mt-2 text-2xl font-bold tracking-tight text-soft-900">{{ money(todayRevenue) }}</p>
+                    <p class="mt-1 text-xs text-soft-400">{{ todayOrders }} pesanan</p>
+                </div>
+                <div class="card p-5">
+                    <p class="text-sm text-soft-500">Omzet bulan ini</p>
+                    <p class="mt-2 text-2xl font-bold tracking-tight text-soft-900">{{ money(revenue) }}</p>
+                    <p class="mt-1 text-xs text-soft-400">Tertagih {{ money(billed) }}</p>
+                </div>
+                <div class="card p-5">
+                    <p class="text-sm text-soft-500">Piutang</p>
+                    <p class="mt-2 text-2xl font-bold tracking-tight text-amber-700">{{ money(outstanding) }}</p>
+                    <p class="mt-1 text-xs text-soft-400">Belum tertagih penuh</p>
+                </div>
+                <div class="card p-5">
+                    <p class="text-sm text-soft-500">Antrian aktif</p>
+                    <p class="mt-2 text-2xl font-bold tracking-tight text-brand-700">
+                        {{ (counts.todo || 0) + (counts.in_progress || 0) }}
+                    </p>
+                    <p class="mt-1 text-xs text-soft-400">Todo + proses</p>
+                </div>
+            </div>
+
+            <div class="grid gap-6 lg:grid-cols-5">
+                <div class="card p-5 lg:col-span-3">
+                    <div class="mb-5 flex items-center justify-between">
+                        <div>
+                            <h2 class="font-semibold text-soft-900">Pendapatan 7 hari</h2>
+                            <p class="text-sm text-soft-500">Tren kas masuk harian</p>
+                        </div>
+                    </div>
+                    <div class="flex h-44 items-end gap-2">
+                        <div
+                            v-for="(point, i) in series"
+                            :key="i"
+                            class="group flex flex-1 flex-col items-center justify-end gap-2"
+                        >
+                            <div
+                                class="w-full rounded-t-xl bg-gradient-to-t from-brand-600 to-brand-300 transition group-hover:from-brand-700 group-hover:to-brand-400"
+                                :style="{ height: `${Math.max(8, (point.value / maxSeries) * 100)}%` }"
+                                :title="money(point.value)"
+                            />
+                            <span class="text-[11px] font-medium text-soft-500">{{ point.label }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card p-5 lg:col-span-2">
+                    <h2 class="font-semibold text-soft-900">Status pesanan</h2>
+                    <p class="mb-4 text-sm text-soft-500">Bulan berjalan</p>
+                    <div class="space-y-3">
+                        <div
+                            v-for="(label, key) in statusLabels"
+                            :key="key"
+                            class="flex items-center justify-between rounded-xl bg-soft-50 px-3 py-2.5"
+                        >
+                            <StatusBadge :status="key" :label="label" />
+                            <span class="text-sm font-semibold text-soft-800">{{ counts[key] || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card overflow-hidden">
+                <div class="flex items-center justify-between border-b border-soft-100 px-5 py-4">
+                    <div>
+                        <h2 class="font-semibold text-soft-900">Pesanan terbaru</h2>
+                        <p class="text-sm text-soft-500">6 transaksi terakhir</p>
+                    </div>
+                    <Link :href="route('order.index')" class="text-sm font-semibold text-brand-700 hover:text-brand-800">
+                        Lihat semua
+                    </Link>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-soft-50/80 text-left text-xs uppercase tracking-wide text-soft-500">
+                            <tr>
+                                <th class="px-5 py-3 font-semibold">ID</th>
+                                <th class="px-5 py-3 font-semibold">Pelanggan</th>
+                                <th class="px-5 py-3 font-semibold">Tanggal</th>
+                                <th class="px-5 py-3 font-semibold">Total</th>
+                                <th class="px-5 py-3 font-semibold">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-soft-100">
+                            <tr v-for="order in recent" :key="order.id" class="hover:bg-soft-50/60">
+                                <td class="px-5 py-3 font-medium text-soft-800">#{{ order.id }}</td>
+                                <td class="px-5 py-3 text-soft-700">{{ order.customer?.name || '—' }}</td>
+                                <td class="px-5 py-3 text-soft-500">{{ order.ordered_at }}</td>
+                                <td class="px-5 py-3 font-medium text-soft-800">{{ money(order.total) }}</td>
+                                <td class="px-5 py-3">
+                                    <StatusBadge :status="order.order_status" :label="statusLabels[order.order_status]" />
+                                </td>
+                            </tr>
+                            <tr v-if="!recent.length">
+                                <td colspan="5" class="px-5 py-10 text-center text-soft-400">Belum ada pesanan</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </AuthenticatedLayout>
+</template>

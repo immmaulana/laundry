@@ -2,27 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Models\Order;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class PageController extends Controller
 {
-    public function home()
+    public function settingEdit(): Response
     {
-        return view('pages.home', [
-            'income' => Order::currentMonthIncome(),
-            'todo' => Order::currentMonthTodo(),
-            'inProgress' => Order::currentMonthInProgress(),
-            'done' => Order::currentMonthDone(),
-            'completed' => Order::currentMonthCompleted(),
-        ]);
-    }
+        $user = auth()->user();
 
-    public function settingEdit()
-    {
-        return view('pages.setting', [
-            'data' => auth()->user(),
+        return Inertia::render('Settings/Index', [
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'language' => $user->language ?? 'id',
+                'role' => $user->role,
+            ],
             'languages' => [
                 'id' => 'Bahasa Indonesia',
                 'en' => 'English',
@@ -30,26 +28,20 @@ class PageController extends Controller
         ]);
     }
 
-    public function settingUpdate(Request $request)
+    public function settingUpdate(Request $request): RedirectResponse
     {
-        $validatedData = $request->validate([
-            'name' => ['required', 'string'],
-            'language' => [
-                'required',
-                'string',
-                Rule::in(['en', 'id']),
-            ],
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+            'language' => ['required', 'string', Rule::in(['en', 'id'])],
             'email' => [
                 'required',
-                'email', 
-                Rule::unique('users')->ignore(auth()->user()->id),
+                'email',
+                Rule::unique('users')->ignore(auth()->id()),
             ],
         ]);
-        try {
-            auth()->user()->update($validatedData);
-            return back()->with('success', 'Success!');
-        } catch (\Throwable $th) {
-            return back()->with('error', 'Error!');
-        }
+
+        auth()->user()->update($validated);
+
+        return back()->with('success', 'Profil berhasil diperbarui.');
     }
 }

@@ -3,33 +3,40 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class UserController extends Controller
 {
-    /** Matriks hak akses yang ditampilkan di halaman dan dipakai sebagai acuan. */
     public const MATRIX = [
-        ['modul' => 'Dashboard',        'kasir' => 'ringkas', 'admin' => true],
-        ['modul' => 'Kasir (POS)',      'kasir' => true,      'admin' => true],
-        ['modul' => 'Pesanan',          'kasir' => true,      'admin' => true],
-        ['modul' => 'Pelanggan',        'kasir' => true,      'admin' => true],
-        ['modul' => 'Layanan & Harga',  'kasir' => false,     'admin' => true],
-        ['modul' => 'Laporan',          'kasir' => false,     'admin' => true],
-        ['modul' => 'Karyawan & Akses', 'kasir' => false,     'admin' => true],
-        ['modul' => 'Pengaturan',       'kasir' => 'profil',  'admin' => true],
+        ['modul' => 'Dashboard', 'kasir' => 'ringkas', 'admin' => true],
+        ['modul' => 'Kasir (POS)', 'kasir' => true, 'admin' => true],
+        ['modul' => 'Pesanan', 'kasir' => true, 'admin' => true],
+        ['modul' => 'Pelanggan', 'kasir' => true, 'admin' => true],
+        ['modul' => 'Layanan & Harga', 'kasir' => false, 'admin' => true],
+        ['modul' => 'Laporan', 'kasir' => false, 'admin' => true],
+        ['modul' => 'Karyawan & Akses', 'kasir' => false, 'admin' => true],
+        ['modul' => 'Pengaturan', 'kasir' => 'profil', 'admin' => true],
     ];
 
-    public function index()
+    public function index(): Response
     {
-        return view('pages.users', [
-            'users' => User::orderByRaw("FIELD(role,'admin','kasir')")->orderBy('name')->get(),
+        $companyId = auth()->user()->company_id;
+
+        return Inertia::render('Users/Index', [
+            'users' => User::query()
+                ->where('company_id', $companyId)
+                ->orderByRaw("FIELD(role,'admin','kasir')")
+                ->orderBy('name')
+                ->get(['id', 'name', 'email', 'role', 'is_active', 'created_at']),
             'matrix' => self::MATRIX,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:100'],
@@ -39,19 +46,24 @@ class UserController extends Controller
         ]);
 
         User::create([
+            'company_id' => auth()->user()->company_id,
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'],
             'role' => $data['role'],
             'is_active' => true,
             'language' => 'id',
         ]);
 
-        return back()->with('success', 'Pengguna ' . $data['name'] . ' ditambahkan sebagai ' . $data['role'] . '.');
+        return back()->with('success', 'Pengguna '.$data['name'].' ditambahkan sebagai '.$data['role'].'.');
     }
 
-    public function update(Request $request, User $user)
+    public function update(Request $request, User $user): RedirectResponse
     {
+        if ($user->company_id !== auth()->user()->company_id) {
+            abort(403);
+        }
+
         $data = $request->validate([
             'role' => ['required', Rule::in(['admin', 'kasir'])],
             'is_active' => ['nullable', 'boolean'],
@@ -66,6 +78,6 @@ class UserController extends Controller
             'is_active' => (bool) ($data['is_active'] ?? false),
         ]);
 
-        return back()->with('success', 'Akses ' . $user->name . ' diperbarui.');
+        return back()->with('success', 'Akses '.$user->name.' diperbarui.');
     }
 }

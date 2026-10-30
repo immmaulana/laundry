@@ -6,27 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreOrderRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
+    public function authorize(): bool
     {
-        return auth()->user()->id == $this->user_id;
+        return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'user_id' => 'required',
-            'ordered_at' => 'required|date',
-            'customer_id' => 'nullable',
+            'ordered_at' => ['required', 'date'],
+            'customer_id' => ['nullable', 'exists:customers,id'],
+            'name' => ['required_without:customer_id', 'nullable', 'string', 'max:100'],
+            'phone' => ['required_without:customer_id', 'nullable', 'string', 'max:30'],
+            'address' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

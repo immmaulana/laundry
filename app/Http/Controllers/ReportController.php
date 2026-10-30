@@ -7,10 +7,12 @@ use App\Models\Order;
 use App\Models\OrderItemLine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ReportController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
         $period = in_array($request->period, ['daily', 'weekly', 'monthly', 'yearly'], true)
             ? $request->period
@@ -25,11 +27,11 @@ class ReportController extends Controller
         $base = Order::whereBetween('ordered_at', [$start->toDateString(), $end->toDateString()]);
         $prev = Order::whereBetween('ordered_at', [$prevStart->toDateString(), $prevEnd->toDateString()]);
 
-        $billed    = (int) (clone $base)->sum('total');
-        $revenue   = (int) (clone $base)->sum('payment');
-        $orders    = (clone $base)->count();
-        $prevRev   = (int) (clone $prev)->sum('payment');
-        $delta     = $prevRev > 0 ? round((($revenue - $prevRev) / $prevRev) * 100, 1) : null;
+        $billed = (int) (clone $base)->sum('total');
+        $revenue = (int) (clone $base)->sum('payment');
+        $orders = (clone $base)->count();
+        $prevRev = (int) (clone $prev)->sum('payment');
+        $delta = $prevRev > 0 ? round((($revenue - $prevRev) / $prevRev) * 100, 1) : null;
 
         $status = [];
         foreach (OrderStatus::cases() as $case) {
@@ -39,6 +41,7 @@ class ReportController extends Controller
         $topServices = OrderItemLine::query()
             ->join('orders', 'orders.id', '=', 'order_item_lines.order_id')
             ->join('plans', 'plans.id', '=', 'order_item_lines.plan_id')
+            ->where('orders.company_id', auth()->user()->company_id)
             ->whereBetween('orders.ordered_at', [$start->toDateString(), $end->toDateString()])
             ->selectRaw('plans.plan as name, SUM(order_item_lines.quantity) as qty, SUM(order_item_lines.subtotal) as amount')
             ->groupBy('plans.id', 'plans.plan')
@@ -47,17 +50,24 @@ class ReportController extends Controller
             ->get();
 
         $series = $this->series($period, $start, $end);
-        $maxSeries = max(1, max(array_column($series, 'value')) ?: 1);
 
-        return view('pages.report', [
+        return Inertia::render('Reports/Index', [
             'period' => $period,
-            'anchor' => $anchor,
+            'anchor' => $anchor->toDateString(),
             'labels' => $this->labels($period, $start, $end),
-            'start' => $start, 'end' => $end,
-            'billed' => $billed, 'revenue' => $revenue, 'outstanding' => max(0, $billed - $revenue),
-            'orders' => $orders, 'avg' => $orders > 0 ? (int) round($revenue / $orders) : 0,
-            'delta' => $delta, 'status' => $status, 'topServices' => $topServices,
-            'series' => $series, 'maxSeries' => $maxSeries,
+            'start' => $start->toDateString(),
+            'end' => $end->toDateString(),
+            'billed' => $billed,
+            'revenue' => $revenue,
+            'outstanding' => max(0, $billed - $revenue),
+            'orders' => $orders,
+            'avg' => $orders > 0 ? (int) round($revenue / $orders) : 0,
+            'delta' => $delta,
+            'status' => $status,
+            'statusLabels' => OrderStatus::options(),
+            'topServices' => $topServices,
+            'series' => $series,
+            'maxSeries' => max(1, max(array_column($series, 'value')) ?: 1),
         ]);
     }
 
@@ -65,21 +75,30 @@ class ReportController extends Controller
     {
         switch ($period) {
             case 'daily':
-                $start = $anchor->copy(); $end = $anchor->copy()->endOfDay();
-                $prevStart = $anchor->copy()->subDay(); $prevEnd = $anchor->copy()->subDay()->endOfDay();
+                $start = $anchor->copy();
+                $end = $anchor->copy()->endOfDay();
+                $prevStart = $anchor->copy()->subDay();
+                $prevEnd = $anchor->copy()->subDay()->endOfDay();
                 break;
             case 'weekly':
-                $start = $anchor->copy()->startOfWeek(Carbon::MONDAY); $end = $anchor->copy()->endOfWeek(Carbon::SUNDAY);
-                $prevStart = $start->copy()->subWeek(); $prevEnd = $end->copy()->subWeek();
+                $start = $anchor->copy()->startOfWeek(Carbon::MONDAY);
+                $end = $anchor->copy()->endOfWeek(Carbon::SUNDAY);
+                $prevStart = $start->copy()->subWeek();
+                $prevEnd = $end->copy()->subWeek();
                 break;
             case 'yearly':
-                $start = $anchor->copy()->startOfYear(); $end = $anchor->copy()->endOfYear();
-                $prevStart = $start->copy()->subYear(); $prevEnd = $end->copy()->subYear();
+                $start = $anchor->copy()->startOfYear();
+                $end = $anchor->copy()->endOfYear();
+                $prevStart = $start->copy()->subYear();
+                $prevEnd = $end->copy()->subYear();
                 break;
-            default: // monthly
-                $start = $anchor->copy()->startOfMonth(); $end = $anchor->copy()->endOfMonth();
-                $prevStart = $start->copy()->subMonth(); $prevEnd = $end->copy()->subMonth();
+            default:
+                $start = $anchor->copy()->startOfMonth();
+                $end = $anchor->copy()->endOfMonth();
+                $prevStart = $start->copy()->subMonth();
+                $prevEnd = $end->copy()->subMonth();
         }
+
         return [$start, $end, $prevStart, $prevEnd];
     }
 
@@ -89,17 +108,25 @@ class ReportController extends Controller
         if ($period === 'daily') {
             for ($h = 0; $h < 24; $h += 3) {
                 $from = $start->copy()->addHours($h);
-                $to = $self = $from->copy()->addHours(3)->subSecond();
-                $rows[] = ['label' => sprintf('%02d', $h), 'value' => (int) Order::whereBetween('created_at', [$from, $to])->sum('payment')];
+                $to = $from->copy()->addHours(3)->subSecond();
+                $rows[] = [
+                    'label' => sprintf('%02d', $h),
+                    'value' => (int) Order::whereBetween('created_at', [$from, $to])->sum('payment'),
+                ];
             }
+
             return $rows;
         }
         if ($period === 'yearly') {
             for ($m = 1; $m <= 12; $m++) {
                 $s = $start->copy()->month($m)->startOfMonth();
                 $e = $start->copy()->month($m)->endOfMonth();
-                $rows[] = ['label' => $s->translatedFormat('M'), 'value' => (int) Order::whereBetween('ordered_at', [$s->toDateString(), $e->toDateString()])->sum('payment')];
+                $rows[] = [
+                    'label' => $s->translatedFormat('M'),
+                    'value' => (int) Order::whereBetween('ordered_at', [$s->toDateString(), $e->toDateString()])->sum('payment'),
+                ];
             }
+
             return $rows;
         }
         $cursor = $start->copy();
@@ -110,6 +137,7 @@ class ReportController extends Controller
             ];
             $cursor->addDay();
         }
+
         return $rows;
     }
 
@@ -117,8 +145,8 @@ class ReportController extends Controller
     {
         return match ($period) {
             'daily' => ['Harian', $start->translatedFormat('l, j F Y')],
-            'weekly' => ['Mingguan', $start->translatedFormat('j M') . ' – ' . $end->translatedFormat('j M Y')],
-            'yearly' => ['Tahunan', 'Tahun ' . $start->year],
+            'weekly' => ['Mingguan', $start->translatedFormat('j M').' – '.$end->translatedFormat('j M Y')],
+            'yearly' => ['Tahunan', 'Tahun '.$start->year],
             default => ['Bulanan', $start->translatedFormat('F Y')],
         };
     }
