@@ -3,32 +3,32 @@
 @tailwind utilities;
 
 :root {
-    /* Default Laundry Soft — diganti per perusahaan via JS */
-    --brand-50: 240 250 248;
-    --brand-100: 216 243 238;
-    --brand-200: 179 230 220;
-    --brand-300: 130 211 197;
-    --brand-400: 79 184 168;
-    --brand-500: 52 159 143;
-    --brand-600: 39 128 116;
-    --brand-700: 35 103 94;
-    --brand-800: 32 83 76;
-    --brand-900: 30 69 64;
+    /* Default Spinly (sama login) — diganti per perusahaan via JS */
+    --brand-50: 235 239 246;
+    --brand-100: 206 216 232;
+    --brand-200: 162 181 211;
+    --brand-300: 113 142 188;
+    --brand-400: 60 100 163;
+    --brand-500: 23 71 146;
+    --brand-600: 11 61 140;
+    --brand-700: 9 50 115;
+    --brand-800: 7 41 95;
+    --brand-900: 6 34 77;
 
-    --soft-50: 247 248 250;
-    --soft-100: 238 241 245;
-    --soft-200: 221 227 235;
-    --soft-300: 195 205 217;
-    --soft-400: 154 171 189;
-    --soft-500: 122 143 165;
-    --soft-600: 98 117 137;
-    --soft-700: 81 96 112;
-    --soft-800: 70 81 94;
-    --soft-900: 61 69 80;
+    --soft-50: 243 244 246;
+    --soft-100: 224 227 232;
+    --soft-200: 196 202 211;
+    --soft-300: 165 174 188;
+    --soft-400: 131 144 162;
+    --soft-500: 108 123 145;
+    --soft-600: 100 116 139;
+    --soft-700: 82 95 114;
+    --soft-800: 68 79 95;
+    --soft-900: 55 64 76;
 
-    --soft-mesh: radial-gradient(ellipse 80% 50% at 0% -20%, rgba(52, 159, 143, 0.12), transparent),
-        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(122, 143, 165, 0.1), transparent),
-        linear-gradient(180deg, #f7f8fa 0%, #eef1f5 100%);
+    --soft-mesh: radial-gradient(ellipse 80% 50% at 0% -20%, rgba(23, 71, 146, 0.14), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(108, 123, 145, 0.12), transparent),
+        linear-gradient(180deg, #f3f4f6 0%, #e0e3e8 100%);
 }
 
 @layer base {
