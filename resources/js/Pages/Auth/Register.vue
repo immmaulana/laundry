@@ -19,21 +19,21 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Daftar perusahaan" />
+        <Head title="Daftar · Spinly" />
 
-        <div class="mb-6">
-            <h1 class="text-xl font-bold text-soft-900">Buat akun perusahaan</h1>
-            <p class="mt-1 text-sm text-soft-500">Setiap perusahaan punya data & karyawan sendiri</p>
+        <div class="mb-7">
+            <h1 class="text-2xl font-bold tracking-tight text-[#0b1f4d]">Buat akun perusahaan</h1>
+            <p class="mt-1.5 text-sm text-slate-500">Setiap perusahaan punya data & karyawan sendiri</p>
         </div>
 
         <form class="space-y-4" @submit.prevent="submit">
             <div>
-                <label class="label-field" for="company_name">Nama perusahaan</label>
+                <label class="mb-1.5 block text-sm font-medium text-slate-700" for="company_name">Nama perusahaan</label>
                 <input
                     id="company_name"
                     v-model="form.company_name"
                     type="text"
-                    class="input-field"
+                    class="w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:ring-sky-500/25"
                     placeholder="Contoh: PT Fresh Wash"
                     required
                     autofocus
@@ -42,40 +42,67 @@ const submit = () => {
             </div>
 
             <div>
-                <label class="label-field" for="name">Nama admin</label>
-                <input id="name" v-model="form.name" type="text" class="input-field" required autocomplete="name" />
+                <label class="mb-1.5 block text-sm font-medium text-slate-700" for="name">Nama admin</label>
+                <input
+                    id="name"
+                    v-model="form.name"
+                    type="text"
+                    class="w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500/25"
+                    required
+                    autocomplete="name"
+                />
                 <p v-if="form.errors.name" class="mt-1 text-xs text-rose-600">{{ form.errors.name }}</p>
             </div>
 
             <div>
-                <label class="label-field" for="email">Email</label>
-                <input id="email" v-model="form.email" type="email" class="input-field" required autocomplete="username" />
+                <label class="mb-1.5 block text-sm font-medium text-slate-700" for="email">Email</label>
+                <input
+                    id="email"
+                    v-model="form.email"
+                    type="email"
+                    class="w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500/25"
+                    required
+                    autocomplete="username"
+                />
                 <p v-if="form.errors.email" class="mt-1 text-xs text-rose-600">{{ form.errors.email }}</p>
             </div>
 
             <div>
-                <label class="label-field" for="password">Password</label>
-                <input id="password" v-model="form.password" type="password" class="input-field" required autocomplete="new-password" />
+                <label class="mb-1.5 block text-sm font-medium text-slate-700" for="password">Password</label>
+                <input
+                    id="password"
+                    v-model="form.password"
+                    type="password"
+                    class="w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500/25"
+                    required
+                    autocomplete="new-password"
+                />
                 <p v-if="form.errors.password" class="mt-1 text-xs text-rose-600">{{ form.errors.password }}</p>
             </div>
 
             <div>
-                <label class="label-field" for="password_confirmation">Konfirmasi password</label>
+                <label class="mb-1.5 block text-sm font-medium text-slate-700" for="password_confirmation">Konfirmasi password</label>
                 <input
                     id="password_confirmation"
                     v-model="form.password_confirmation"
                     type="password"
-                    class="input-field"
+                    class="w-full rounded-xl border-slate-200 bg-white text-sm text-slate-900 shadow-sm focus:border-sky-500 focus:ring-sky-500/25"
                     required
                     autocomplete="new-password"
                 />
             </div>
 
-            <button type="submit" class="btn-primary w-full" :disabled="form.processing">Daftarkan perusahaan</button>
+            <button
+                type="submit"
+                class="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-[#0b3d8c] px-4 py-3 text-sm font-semibold text-white shadow-md shadow-sky-900/15 transition hover:bg-[#092f6d] focus:outline-none focus:ring-2 focus:ring-sky-400/40 focus:ring-offset-2 disabled:opacity-60"
+                :disabled="form.processing"
+            >
+                {{ form.processing ? 'Memproses...' : 'Daftarkan perusahaan' }}
+            </button>
 
-            <p class="text-center text-sm text-soft-500">
+            <p class="pt-1 text-center text-sm text-slate-500">
                 Sudah punya akun?
-                <Link :href="route('login')" class="font-semibold text-brand-700 hover:text-brand-800">Masuk</Link>
+                <Link :href="route('login')" class="font-semibold text-sky-700 hover:text-sky-900">Masuk</Link>
             </p>
         </form>
     </GuestLayout>
