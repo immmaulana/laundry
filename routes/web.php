@@ -16,8 +16,26 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'locale'])->group(function() {
     
     // HOME PAGE
-    Route::get('/', [\App\Http\Controllers\PageController::class, 'home'])
+    Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])
         ->name('home');
+
+    // KASIR (POS) — admin & kasir
+    Route::get('kasir', [\App\Http\Controllers\KasirController::class, 'index'])
+        ->name('kasir.index');
+    Route::post('kasir', [\App\Http\Controllers\KasirController::class, 'store'])
+        ->name('kasir.store');
+
+    // KHUSUS ADMIN
+    Route::middleware('role:admin')->group(function () {
+        Route::get('report', [\App\Http\Controllers\ReportController::class, 'index'])
+            ->name('report.index');
+        Route::get('users', [\App\Http\Controllers\UserController::class, 'index'])
+            ->name('users.index');
+        Route::post('users', [\App\Http\Controllers\UserController::class, 'store'])
+            ->name('users.store');
+        Route::patch('users/{user}', [\App\Http\Controllers\UserController::class, 'update'])
+            ->name('users.update');
+    });
 
     // ORDER PAGE
     Route::resource('order', \App\Http\Controllers\OrderController::class)
