@@ -73,4 +73,35 @@
     .table-scroll {
         @apply -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0;
     }
+
+    .spinly-logo-enter {
+        animation: spinly-logo-in 1.35s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+    }
+}
+
+@keyframes spinly-logo-in {
+    0% {
+        opacity: 0;
+        transform: translateX(3.5rem) scale(0.35) rotate(-220deg);
+        filter: blur(4px);
+    }
+    55% {
+        opacity: 1;
+        transform: translateX(-0.35rem) scale(1.12) rotate(18deg);
+        filter: blur(0);
+    }
+    75% {
+        transform: translateX(0.15rem) scale(0.94) rotate(-8deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1) rotate(0deg);
+        filter: blur(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinly-logo-enter {
+        animation: none;
+    }
 }

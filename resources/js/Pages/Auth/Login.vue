@@ -36,7 +36,7 @@ const submit = () => {
                     <img
                         src="/brand/spinly-logo.png"
                         alt="Spinly Laundry App"
-                        class="h-16 w-auto sm:h-[4.5rem]"
+                        class="spinly-logo-enter h-16 w-auto origin-center sm:h-[4.5rem]"
                     />
                 </Link>
             </div>
