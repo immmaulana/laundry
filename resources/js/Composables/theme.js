@@ -73,7 +73,7 @@ export function applyTheme(theme = {}) {
 }
 
 export const THEME_PRESETS = [
-    { name: 'Spinly', primary_color: '#0B3D8C', secondary_color: '#64748B' },
+    { name: 'KucekPos', primary_color: '#0B3D8C', secondary_color: '#64748B' },
     { name: 'Ocean Blue', primary_color: '#2563EB', secondary_color: '#64748B' },
     { name: 'Teal Soft', primary_color: '#278074', secondary_color: '#627589' },
     { name: 'Forest', primary_color: '#2F6B4F', secondary_color: '#6B7280' },

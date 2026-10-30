@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-    /* Default Spinly (sama login) — diganti per perusahaan via JS */
+    /* Default KucekPos (sama login) — diganti per perusahaan via JS */
     --brand-50: 235 239 246;
     --brand-100: 206 216 232;
     --brand-200: 162 181 211;
