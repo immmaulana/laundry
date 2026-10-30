@@ -1,5 +1,5 @@
-const DEFAULT_PRIMARY = '#278074';
-const DEFAULT_SECONDARY = '#627589';
+const DEFAULT_PRIMARY = '#0B3D8C';
+const DEFAULT_SECONDARY = '#64748B';
 
 export function normalizeHex(hex, fallback = DEFAULT_PRIMARY) {
     if (!hex || typeof hex !== 'string') return fallback;
@@ -73,8 +73,9 @@ export function applyTheme(theme = {}) {
 }
 
 export const THEME_PRESETS = [
-    { name: 'Teal Soft', primary_color: '#278074', secondary_color: '#627589' },
+    { name: 'Spinly', primary_color: '#0B3D8C', secondary_color: '#64748B' },
     { name: 'Ocean Blue', primary_color: '#2563EB', secondary_color: '#64748B' },
+    { name: 'Teal Soft', primary_color: '#278074', secondary_color: '#627589' },
     { name: 'Forest', primary_color: '#2F6B4F', secondary_color: '#6B7280' },
     { name: 'Slate Navy', primary_color: '#334155', secondary_color: '#78716C' },
     { name: 'Rose Soft', primary_color: '#BE5A6B', secondary_color: '#6B7280' },
