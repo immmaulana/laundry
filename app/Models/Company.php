@@ -69,8 +69,11 @@ class Company extends Model
     public function themePayload(): array
     {
         return [
-            'primary_color' => ThemePalette::normalize($this->primary_color ?: '#278074'),
-            'secondary_color' => ThemePalette::normalize($this->secondary_color ?: '#627589'),
+            'primary_color' => ThemePalette::normalize($this->primary_color ?: ThemePalette::DEFAULT_PRIMARY),
+            'secondary_color' => ThemePalette::normalize(
+                $this->secondary_color ?: ThemePalette::DEFAULT_SECONDARY,
+                ThemePalette::DEFAULT_SECONDARY,
+            ),
             'logo_url' => $this->logo_url,
         ];
     }

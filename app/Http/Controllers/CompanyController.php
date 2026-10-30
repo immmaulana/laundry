@@ -190,8 +190,11 @@ class CompanyController extends Controller
         $data['slug'] = $data['slug'] ?: Str::slug($data['name']);
         $data['code'] = strtoupper($data['code']);
         $data['is_active'] = filter_var($data['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN);
-        $data['primary_color'] = ThemePalette::normalize($data['primary_color'] ?? '#278074');
-        $data['secondary_color'] = ThemePalette::normalize($data['secondary_color'] ?? '#627589');
+        $data['primary_color'] = ThemePalette::normalize($data['primary_color'] ?? ThemePalette::DEFAULT_PRIMARY);
+        $data['secondary_color'] = ThemePalette::normalize(
+            $data['secondary_color'] ?? ThemePalette::DEFAULT_SECONDARY,
+            ThemePalette::DEFAULT_SECONDARY,
+        );
 
         return $data;
     }
@@ -217,13 +220,6 @@ class CompanyController extends Controller
 
     private function presets(): array
     {
-        return [
-            ['name' => 'Teal Soft', 'primary_color' => '#278074', 'secondary_color' => '#627589'],
-            ['name' => 'Ocean Blue', 'primary_color' => '#2563EB', 'secondary_color' => '#64748B'],
-            ['name' => 'Forest', 'primary_color' => '#2F6B4F', 'secondary_color' => '#6B7280'],
-            ['name' => 'Slate Navy', 'primary_color' => '#334155', 'secondary_color' => '#78716C'],
-            ['name' => 'Rose Soft', 'primary_color' => '#BE5A6B', 'secondary_color' => '#6B7280'],
-            ['name' => 'Amber Warm', 'primary_color' => '#B45309', 'secondary_color' => '#57534E'],
-        ];
+        return ThemePalette::presets();
     }
 }
