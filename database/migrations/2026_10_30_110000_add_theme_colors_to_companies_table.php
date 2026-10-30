@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('companies', function (Blueprint $table) {
-            $table->string('primary_color', 7)->default('#278074')->after('is_active');
-            $table->string('secondary_color', 7)->default('#627589')->after('primary_color');
+            $table->string('primary_color', 7)->default('#0B3D8C')->after('is_active');
+            $table->string('secondary_color', 7)->default('#64748B')->after('primary_color');
         });
     }
 

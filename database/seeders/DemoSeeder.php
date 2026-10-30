@@ -46,8 +46,8 @@ class DemoSeeder extends Seeder
                 'email' => 'hello@freshwash.test',
                 'address' => 'Jl. Sudirman No. 88',
                 'city' => 'Jakarta',
-                'primary_color' => '#278074',
-                'secondary_color' => '#627589',
+                'primary_color' => '#0B3D8C',
+                'secondary_color' => '#64748B',
             ],
             'admin' => ['name' => 'Admin Fresh Wash', 'email' => 'admin@pta.test', 'password' => 'rahasia123'],
             'kasirs' => [
