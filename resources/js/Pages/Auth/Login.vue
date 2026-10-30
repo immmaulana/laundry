@@ -24,10 +24,23 @@ const submit = () => {
     <GuestLayout>
         <Head title="Masuk · Spinly" />
 
-        <div class="mb-7">
-            <h1 class="text-2xl font-bold tracking-tight text-[#0b1f4d]">Masuk</h1>
-            <p class="mt-1.5 text-sm text-slate-500">Akses panel operasional laundry Anda</p>
-        </div>
+        <template #brand>
+            <div class="mb-7 flex items-center justify-between gap-4">
+                <div class="min-w-0">
+                    <h1 class="text-2xl font-bold tracking-tight text-[#0b1f4d]">Masuk</h1>
+                    <p class="mt-1 text-sm leading-snug text-slate-500">
+                        Akses panel operasional laundry Anda
+                    </p>
+                </div>
+                <Link href="/" class="ml-auto shrink-0">
+                    <img
+                        src="/brand/spinly-logo.png"
+                        alt="Spinly Laundry App"
+                        class="h-16 w-auto sm:h-[4.5rem]"
+                    />
+                </Link>
+            </div>
+        </template>
 
         <div
             v-if="status"
@@ -91,11 +104,6 @@ const submit = () => {
             >
                 {{ form.processing ? 'Memproses...' : 'Masuk ke Spinly' }}
             </button>
-
-            <p class="pt-1 text-center text-sm text-slate-500">
-                Perusahaan baru?
-                <Link :href="route('register')" class="font-semibold text-sky-700 hover:text-sky-900">Daftar</Link>
-            </p>
         </form>
     </GuestLayout>
 </template>

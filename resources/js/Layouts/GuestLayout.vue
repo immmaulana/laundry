@@ -62,13 +62,15 @@ onUnmounted(() => {
             </div>
 
             <div class="mx-auto w-full max-w-[24rem]">
-                <Link href="/" class="mb-8 inline-flex">
-                    <img
-                        src="/brand/spinly-logo.png"
-                        alt="Spinly Laundry App"
-                        class="h-[4.25rem] w-auto sm:h-[4.75rem]"
-                    />
-                </Link>
+                <slot name="brand">
+                    <Link href="/" class="mb-7 inline-flex">
+                        <img
+                            src="/brand/spinly-logo.png"
+                            alt="Spinly Laundry App"
+                            class="h-14 w-auto object-left sm:h-16"
+                        />
+                    </Link>
+                </slot>
 
                 <slot />
 
