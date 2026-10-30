@@ -16,6 +16,13 @@ defineProps({
     maxSeries: Number,
     statusLabels: Object,
 });
+
+const compactMoney = (value) => {
+    const n = Number(value || 0);
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}jt`;
+    if (n >= 1_000) return `${Math.round(n / 1_000)}rb`;
+    return String(n);
+};
 </script>
 
 <template>
@@ -68,18 +75,25 @@ defineProps({
                             <p class="text-sm text-soft-500">Tren kas masuk harian</p>
                         </div>
                     </div>
-                    <div class="flex h-40 max-w-full items-end gap-1.5 overflow-hidden sm:h-44 sm:gap-2">
+                    <div class="flex h-48 max-w-full items-stretch gap-2 sm:h-52 sm:gap-3">
                         <div
                             v-for="(point, i) in series"
                             :key="i"
-                            class="group flex min-w-0 flex-1 flex-col items-center justify-end gap-2"
+                            class="group flex min-w-0 flex-1 flex-col items-center"
                         >
-                            <div
-                                class="w-full max-w-[3rem] rounded-t-xl bg-gradient-to-t from-brand-600 to-brand-300 transition group-hover:from-brand-700 group-hover:to-brand-400"
-                                :style="{ height: `${Math.max(8, (point.value / (maxSeries || 1)) * 100)}%` }"
-                                :title="money(point.value)"
-                            />
-                            <span class="truncate text-[10px] font-medium text-soft-500 sm:text-[11px]">{{ point.label }}</span>
+                            <div class="flex w-full flex-1 items-end justify-center">
+                                <div
+                                    class="w-full max-w-[2.75rem] rounded-t-xl bg-gradient-to-t from-brand-600 to-brand-300 transition group-hover:from-brand-700 group-hover:to-brand-400"
+                                    :style="{
+                                        height: `${Math.max(point.value > 0 ? 12 : 4, Math.round((point.value / (maxSeries || 1)) * 100))}%`,
+                                    }"
+                                    :title="money(point.value)"
+                                />
+                            </div>
+                            <span class="mt-2 truncate text-[10px] font-medium text-soft-500 sm:text-[11px]">{{ point.label }}</span>
+                            <span class="mt-0.5 max-w-full truncate text-[9px] font-semibold tabular-nums text-soft-700 sm:text-[10px]">
+                                {{ point.value ? compactMoney(point.value) : '—' }}
+                            </span>
                         </div>
                     </div>
                 </div>
