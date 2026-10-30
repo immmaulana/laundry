@@ -176,7 +176,11 @@ class DemoSeeder extends Seeder
             $customer = $customers[$i % count($customers)];
             $qty = ($i % 5) + 2;
             $status = $statuses[$i % count($statuses)];
-            $pay = $payments[$i % count($payments)];
+            // 7 hari terakhir lebih sering lunas biar grafik pendapatan naik-turun jelas
+            $inLastWeek = $i >= max(0, $config['order_count'] - 7);
+            $pay = $inLastWeek
+                ? ($i % 5 === 0 ? PaymentStatus::PARTIAL : PaymentStatus::PAID)
+                : $payments[$i % count($payments)];
             $subtotal = $plan->price * $qty;
             $paid = match ($pay) {
                 PaymentStatus::PAID => $subtotal,
@@ -184,10 +188,10 @@ class DemoSeeder extends Seeder
                 default => 0,
             };
 
-            $dayOffset = -($config['order_count'] - $i);
-            $orderedAt = Carbon::now()->startOfMonth()->addDays(max(0, Carbon::now()->day + $dayOffset - 1));
-            if ($orderedAt->month !== Carbon::now()->month) {
-                $orderedAt = Carbon::now()->subDays(abs($dayOffset));
+            // Sebar order di N hari terakhir agar grafik dashboard terlihat
+            $orderedAt = Carbon::now()->subDays($config['order_count'] - 1 - $i)->startOfDay();
+            if ($orderedAt->isFuture()) {
+                $orderedAt = Carbon::now()->startOfDay();
             }
 
             $order = Order::withoutGlobalScopes()->create([
