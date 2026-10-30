@@ -73,14 +73,15 @@ class ThemePalette
         return $out;
     }
 
-    public static function normalize(string $hex): string
+    public static function normalize(string $hex, ?string $fallback = null): string
     {
+        $fallback ??= self::DEFAULT_PRIMARY;
         $hex = trim($hex);
         if (! str_starts_with($hex, '#')) {
             $hex = '#'.$hex;
         }
         if (! preg_match('/^#[0-9A-Fa-f]{6}$/', $hex)) {
-            return '#278074';
+            return strtoupper($fallback);
         }
 
         return strtoupper($hex);
