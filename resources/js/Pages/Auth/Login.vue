@@ -22,7 +22,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Masuk · Spinly" />
+        <Head title="Masuk · KucekPos" />
 
         <template #brand>
             <div class="mb-7 flex items-center justify-between gap-4">
@@ -34,9 +34,9 @@ const submit = () => {
                 </div>
                 <Link href="/" class="ml-auto shrink-0">
                     <img
-                        src="/brand/spinly-logo.png"
-                        alt="Spinly Laundry App"
-                        class="spinly-logo-enter h-16 w-auto origin-center sm:h-[4.5rem]"
+                        src="/brand/kucekpos-logo.png"
+                        alt="KucekPos"
+                        class="kucek-logo-enter h-16 w-auto origin-center sm:h-[4.5rem]"
                     />
                 </Link>
             </div>
@@ -102,7 +102,7 @@ const submit = () => {
                 class="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-[#0b3d8c] px-4 py-3 text-sm font-semibold text-white shadow-md shadow-sky-900/15 transition hover:bg-[#092f6d] focus:outline-none focus:ring-2 focus:ring-sky-400/40 focus:ring-offset-2 disabled:opacity-60"
                 :disabled="form.processing"
             >
-                {{ form.processing ? 'Memproses...' : 'Masuk ke Spinly' }}
+                {{ form.processing ? 'Memproses...' : 'Masuk ke KucekPos' }}
             </button>
         </form>
     </GuestLayout>

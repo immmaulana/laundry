@@ -19,7 +19,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Daftar · Spinly" />
+        <Head title="Daftar · KucekPos" />
 
         <div class="mb-7">
             <h1 class="text-2xl font-bold tracking-tight text-[#0b1f4d]">Buat akun perusahaan</h1>
