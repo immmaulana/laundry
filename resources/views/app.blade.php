@@ -2,9 +2,20 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="theme-color" content="#0B3D8C">
+        <meta name="application-name" content="CashierLaundry">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="CashierLaundry">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="description" content="POS laundry — kasir, antrian, dan laporan dalam satu panel.">
 
-        <title inertia>{{ config('app.name', 'Laundry') }}</title>
+        <title inertia>{{ config('app.name', 'CashierLaundry') }}</title>
+
+        <link rel="icon" href="/favicon.ico" sizes="any">
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+        <link rel="manifest" href="/manifest.webmanifest">
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=plus-jakarta-sans:400,500,600,700,800&display=swap" rel="stylesheet" />

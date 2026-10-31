@@ -8,6 +8,16 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
 const appName = import.meta.env.VITE_APP_NAME || 'CashierLaundry';
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch((err) => {
+            if (import.meta.env.DEV) {
+                console.warn('[PWA] SW register failed', err);
+            }
+        });
+    });
+}
+
 createInertiaApp({
     title: (title) => (title ? `${title} · ${appName}` : appName),
     resolve: (name) =>

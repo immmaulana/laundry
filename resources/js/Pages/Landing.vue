@@ -1,13 +1,76 @@
 <script setup>
+import PwaInstallBanner from '@/Components/PwaInstallBanner.vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const videoRef = ref(null);
 const featuresScene = ref(null);
 const parallaxY = ref(0);
 const parallaxX = ref(0);
+const heroIndex = ref(0);
+const heroPaused = ref(false);
+
+const heroSlides = [
+    {
+        eyebrow: 'Laundry POS',
+        title: 'CashierLaundry bikin kasir laundry lebih santai.',
+        body: 'Satu panel untuk kasir, antrian, dan laporan. Soft dipakai tiap shift — cepat disentuh, mudah dipahami.',
+        media: 'video',
+        video: '/brand/login-bg.mp4',
+        chipTop: { label: 'Kasir tablet', value: 'Siap sentuh' },
+        chipBottom: { label: 'Antrian hari ini', value: 'Rapi & jelas' },
+    },
+    {
+        eyebrow: 'Struk Thermal',
+        title: 'Cetak struk Bluetooth 58mm langsung dari kasir.',
+        body: 'Hubungkan printer ESC/POS lewat Bluetooth, lihat preview struk, lalu print — tanpa kabel ribet.',
+        media: 'video',
+        video: '/brand/cashierlaundry-thermal-hero.mp4',
+        chipTop: { label: 'Bluetooth', value: 'ESC/POS 58mm' },
+        chipBottom: { label: 'Preview', value: 'Siap print' },
+        hideChips: true,
+    },
+    {
+        eyebrow: 'Siap shift',
+        title: 'Install di tablet, buka langsung seperti aplikasi.',
+        body: 'PWA CashierLaundry bisa dipasang di HP atau tablet — launcher cepat untuk kasir harian.',
+        media: 'video',
+        video: '/brand/cashierlaundry-pwa-hero.mp4',
+        chipTop: { label: 'PWA', value: 'Installable' },
+        chipBottom: { label: 'Mulai', value: 'Masuk panel' },
+        hideChips: true,
+    },
+];
 
 let raf = 0;
+let heroTimer = null;
+
+const goHero = (index) => {
+    heroIndex.value = (index + heroSlides.length) % heroSlides.length;
+};
+
+const nextHero = () => goHero(heroIndex.value + 1);
+
+const startHeroAutoplay = () => {
+    clearInterval(heroTimer);
+    heroTimer = setInterval(() => {
+        if (!heroPaused.value) nextHero();
+    }, 5500);
+};
+
+const playHeroVideo = async () => {
+    await nextTick();
+    const el = videoRef.value;
+    if (!el || heroSlides[heroIndex.value].media !== 'video') return;
+    el.muted = true;
+    el.playsInline = true;
+    const play = el.play();
+    if (play?.catch) play.catch(() => {});
+};
+
+watch(heroIndex, () => {
+    playHeroVideo();
+});
 
 const updateParallax = () => {
     const el = featuresScene.value;
@@ -36,20 +99,16 @@ const onMouseMove = (event) => {
 };
 
 onMounted(() => {
-    const el = videoRef.value;
-    if (el) {
-        el.muted = true;
-        el.playsInline = true;
-        const play = el.play();
-        if (play?.catch) play.catch(() => {});
-    }
+    playHeroVideo();
     updateParallax();
+    startHeroAutoplay();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
 });
 
 onUnmounted(() => {
     videoRef.value?.pause();
+    clearInterval(heroTimer);
     cancelAnimationFrame(raf);
     window.removeEventListener('scroll', onScroll);
     window.removeEventListener('resize', onScroll);
@@ -114,55 +173,136 @@ const steps = [
             </div>
         </header>
 
-        <!-- Hero -->
-        <section class="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-10 sm:px-8 sm:pb-20 sm:pt-14 lg:grid-cols-2 lg:gap-12 lg:pt-16">
-            <div class="brand-rise order-2 lg:order-1">
-                <p class="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">Laundry POS</p>
-                <h1 class="mt-3 text-4xl font-extrabold tracking-tight text-[#0b1f4d] sm:text-5xl lg:leading-[1.08]">
-                    CashierLaundry bikin kasir laundry lebih santai.
-                </h1>
-                <p class="mt-5 max-w-md text-base leading-relaxed text-slate-600 sm:text-lg">
-                    Satu panel untuk kasir, antrian, dan laporan. Soft dipakai tiap shift — cepat disentuh, mudah dipahami.
-                </p>
-                <div class="mt-8 flex flex-wrap gap-3">
-                    <Link
-                        :href="route('login')"
-                        class="inline-flex min-h-12 items-center justify-center rounded-full bg-[#0b3d8c] px-7 text-sm font-semibold text-white shadow-soft-lg transition hover:-translate-y-0.5 hover:bg-[#092f6d]"
-                    >
-                        Masuk ke panel
-                    </Link>
-                    <a
-                        href="#fitur"
-                        class="inline-flex min-h-12 items-center justify-center rounded-full border border-sky-200 bg-white px-7 text-sm font-semibold text-[#0b3d8c] transition hover:bg-sky-50"
-                    >
-                        Lihat fitur
-                    </a>
-                </div>
-            </div>
+        <!-- Hero slider -->
+        <section
+            class="relative pb-16 pt-10 sm:pb-20 sm:pt-14 lg:pt-16"
+            @mouseenter="heroPaused = true"
+            @mouseleave="heroPaused = false"
+        >
+            <!-- Vertical dots — 10px from left edge, vertically centered -->
+            <nav
+                class="absolute left-[10px] top-1/2 z-20 hidden -translate-y-1/2 flex-col items-center gap-2.5 rounded-full bg-white/85 px-2.5 py-3.5 shadow-soft ring-1 ring-sky-100/90 backdrop-blur-md md:flex"
+                aria-label="Navigasi hero"
+            >
+                <button
+                    v-for="(slide, i) in heroSlides"
+                    :key="`dot-${i}`"
+                    type="button"
+                    class="group relative flex h-9 w-3.5 items-center justify-center"
+                    :aria-label="slide.eyebrow"
+                    :aria-current="heroIndex === i ? 'true' : 'false'"
+                    @click="goHero(i); startHeroAutoplay()"
+                >
+                    <span
+                        class="block rounded-full transition-all duration-300 ease-out"
+                        :class="
+                            heroIndex === i
+                                ? 'h-8 w-2.5 bg-[#0b3d8c] shadow-sm shadow-sky-200'
+                                : 'h-2.5 w-2.5 bg-sky-300 group-hover:scale-110 group-hover:bg-sky-500'
+                        "
+                    />
+                </button>
+            </nav>
 
-            <div class="brand-rise-delayed relative order-1 lg:order-2">
-                <div class="brand-float relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0b3d8c] to-[#1d6bb8] p-3 shadow-soft-lg sm:p-4">
-                    <div class="overflow-hidden rounded-[1.5rem]">
-                        <video
-                            ref="videoRef"
-                            class="aspect-[4/3] w-full object-cover"
-                            autoplay
-                            muted
-                            loop
-                            playsinline
-                            preload="auto"
-                        >
-                            <source src="/brand/login-bg.mp4" type="video/mp4" />
-                        </video>
+            <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-5 sm:px-8 lg:grid-cols-2 lg:gap-12">
+                <div class="relative order-2 min-h-[17rem] lg:order-1 lg:min-h-[20rem]">
+                    <Transition name="hero-copy" mode="out-in">
+                        <div :key="heroIndex">
+                            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">
+                                {{ heroSlides[heroIndex].eyebrow }}
+                            </p>
+                            <h1 class="mt-3 text-4xl font-extrabold tracking-tight text-[#0b1f4d] sm:text-5xl lg:leading-[1.08]">
+                                {{ heroSlides[heroIndex].title }}
+                            </h1>
+                            <p class="mt-5 max-w-md text-base leading-relaxed text-slate-600 sm:text-lg">
+                                {{ heroSlides[heroIndex].body }}
+                            </p>
+                            <div class="mt-8 flex flex-wrap gap-3">
+                                <Link
+                                    :href="route('login')"
+                                    class="inline-flex min-h-12 items-center justify-center rounded-full bg-[#0b3d8c] px-7 text-sm font-semibold text-white shadow-soft-lg transition hover:-translate-y-0.5 hover:bg-[#092f6d]"
+                                >
+                                    Masuk ke panel
+                                </Link>
+                                <a
+                                    href="#fitur"
+                                    class="inline-flex min-h-12 items-center justify-center rounded-full border border-sky-200 bg-white px-7 text-sm font-semibold text-[#0b3d8c] transition hover:bg-sky-50"
+                                >
+                                    Lihat fitur
+                                </a>
+                            </div>
+                        </div>
+                    </Transition>
+
+                    <!-- Mobile horizontal dots -->
+                    <div class="mt-8 flex items-center gap-2 lg:hidden">
+                        <button
+                            v-for="(slide, i) in heroSlides"
+                            :key="`mdot-${i}`"
+                            type="button"
+                            class="rounded-full transition-all duration-300"
+                            :class="heroIndex === i ? 'h-2.5 w-7 bg-[#0b3d8c]' : 'h-2.5 w-2.5 bg-sky-300'"
+                            :aria-label="`Slide ${i + 1}`"
+                            @click="goHero(i); startHeroAutoplay()"
+                        />
                     </div>
                 </div>
-                <div class="brand-float-delayed absolute -bottom-4 -left-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-left-6">
-                    <p class="text-xs font-semibold text-sky-600">Antrian hari ini</p>
-                    <p class="text-lg font-bold text-[#0b1f4d]">Rapi & jelas</p>
-                </div>
-                <div class="brand-float absolute -right-2 -top-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-right-4">
-                    <p class="text-xs font-semibold text-sky-600">Kasir tablet</p>
-                    <p class="text-lg font-bold text-[#0b1f4d]">Siap sentuh</p>
+
+                <div class="relative order-1 lg:order-2">
+                    <Transition name="hero-media" mode="out-in">
+                        <div :key="`media-${heroIndex}`" class="relative">
+                            <div
+                                v-if="heroSlides[heroIndex].media === 'video'"
+                                class="brand-float relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0b3d8c] to-[#1d6bb8] p-3 shadow-soft-lg sm:p-4"
+                            >
+                                <div class="overflow-hidden rounded-[1.5rem]">
+                                    <video
+                                        :key="heroSlides[heroIndex].video"
+                                        ref="videoRef"
+                                        class="aspect-[4/3] w-full object-cover"
+                                        autoplay
+                                        muted
+                                        loop
+                                        playsinline
+                                        preload="auto"
+                                    >
+                                        <source :src="heroSlides[heroIndex].video" type="video/mp4" />
+                                    </video>
+                                </div>
+                            </div>
+
+                            <div
+                                v-else
+                                class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-sky-50 to-[#dbeafe] p-4 shadow-soft-lg sm:p-6"
+                            >
+                                <div class="relative mx-auto aspect-[4/3] max-w-lg">
+                                    <img
+                                        src="/brand/cashierlaundry-laptop.png?v=2"
+                                        alt="Dashboard"
+                                        class="absolute bottom-[8%] left-0 w-[78%] drop-shadow-xl"
+                                        draggable="false"
+                                    />
+                                    <img
+                                        src="/brand/cashierlaundry-tablet.png?v=2"
+                                        alt="Kasir tablet"
+                                        class="absolute bottom-[2%] right-0 w-[46%] drop-shadow-2xl"
+                                        draggable="false"
+                                    />
+                                </div>
+                            </div>
+
+                            <template v-if="!heroSlides[heroIndex].hideChips">
+                                <div class="brand-float-delayed absolute -bottom-4 -left-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-left-6">
+                                    <p class="text-xs font-semibold text-sky-600">{{ heroSlides[heroIndex].chipBottom.label }}</p>
+                                    <p class="text-lg font-bold text-[#0b1f4d]">{{ heroSlides[heroIndex].chipBottom.value }}</p>
+                                </div>
+                                <div class="brand-float absolute -right-2 -top-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-right-4">
+                                    <p class="text-xs font-semibold text-sky-600">{{ heroSlides[heroIndex].chipTop.label }}</p>
+                                    <p class="text-lg font-bold text-[#0b1f4d]">{{ heroSlides[heroIndex].chipTop.value }}</p>
+                                </div>
+                            </template>
+                        </div>
+                    </Transition>
                 </div>
             </div>
         </section>
@@ -282,5 +422,32 @@ const steps = [
                 <p>Laundry POS · kasir · antrian · laporan</p>
             </div>
         </footer>
+
+        <PwaInstallBanner />
     </div>
 </template>
+
+<style scoped>
+.hero-copy-enter-active,
+.hero-copy-leave-active,
+.hero-media-enter-active,
+.hero-media-leave-active {
+    transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hero-copy-enter-from {
+    opacity: 0;
+    transform: translateY(14px);
+}
+.hero-copy-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+.hero-media-enter-from {
+    opacity: 0;
+    transform: translateX(18px) scale(0.98);
+}
+.hero-media-leave-to {
+    opacity: 0;
+    transform: translateX(-12px) scale(0.99);
+}
+</style>

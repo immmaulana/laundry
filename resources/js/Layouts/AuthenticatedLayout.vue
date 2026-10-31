@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import FlashMessage from '@/Components/FlashMessage.vue';
+import PwaInstallBanner from '@/Components/PwaInstallBanner.vue';
 import ThemeProvider from '@/Components/ThemeProvider.vue';
 
 const page = usePage();
@@ -254,6 +255,8 @@ const toggleCollapsed = () => {
                     <slot />
                 </main>
             </div>
+
+            <PwaInstallBanner />
         </div>
     </ThemeProvider>
 </template>
