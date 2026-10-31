@@ -1,9 +1,10 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PlanIcon from '@/Components/PlanIcon.vue';
+import ReceiptPreview from '@/Components/ReceiptPreview.vue';
 import { money } from '@/Composables/format';
-import { Head, useForm } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 
 const props = defineProps({
     plans: Array,
@@ -11,9 +12,15 @@ const props = defineProps({
     todayCount: Number,
 });
 
+const page = usePage();
 const cart = ref([]);
 const search = ref('');
 const category = ref('all');
+const receipt = ref(null);
+const addingId = ref(null);
+const justAddedId = ref(null);
+let addTimer = null;
+let addedTimer = null;
 const form = useForm({
     customer_id: '',
     name: '',
@@ -23,6 +30,16 @@ const form = useForm({
     payment_method: 'cash',
     paid: 0,
 });
+
+watch(
+    () => page.props.flash?.receipt,
+    (value) => {
+        if (value) {
+            receipt.value = value;
+        }
+    },
+    { immediate: true },
+);
 
 const categories = computed(() => {
     const seen = new Map();
@@ -60,12 +77,29 @@ const total = computed(() => Math.max(0, subtotal.value - Number(form.discount |
 const planOf = (id) => props.plans.find((p) => p.id === id);
 
 const addPlan = (plan) => {
-    const existing = cart.value.find((row) => row.plan_id === plan.id);
-    if (existing) {
-        existing.qty += 1;
-    } else {
-        cart.value.push({ plan_id: plan.id, qty: 1 });
-    }
+    if (addingId.value) return;
+
+    addingId.value = plan.id;
+    justAddedId.value = null;
+    clearTimeout(addTimer);
+    clearTimeout(addedTimer);
+
+    addTimer = setTimeout(() => {
+        const existing = cart.value.find((row) => row.plan_id === plan.id);
+        if (existing) {
+            existing.qty += 1;
+        } else {
+            cart.value.push({ plan_id: plan.id, qty: 1 });
+        }
+
+        addingId.value = null;
+        justAddedId.value = plan.id;
+        addedTimer = setTimeout(() => {
+            if (justAddedId.value === plan.id) {
+                justAddedId.value = null;
+            }
+        }, 650);
+    }, 280);
 };
 
 const bumpQty = (index, delta) => {
@@ -111,6 +145,12 @@ const submit = () => {
             </div>
         </template>
 
+        <ReceiptPreview
+            v-if="receipt"
+            :receipt="receipt"
+            @close="receipt = null"
+        />
+
         <!--
           Mobile: stack. Tablet+: side-by-side.
           Desktop: gunakan tinggi dinamis + panel kanan bisa scroll agar tombol bayar selalu terlihat.
@@ -152,7 +192,13 @@ const submit = () => {
                             v-for="plan in filteredPlans"
                             :key="plan.id"
                             type="button"
-                            class="card flex min-h-[7rem] flex-col items-start gap-2.5 p-3.5 text-left transition active:scale-[0.98] hover:-translate-y-0.5 hover:shadow-soft-lg sm:min-h-[8rem] sm:p-4 xl:min-h-[8.5rem] xl:p-5"
+                            class="card relative flex min-h-[7rem] flex-col items-start gap-2.5 overflow-hidden p-3.5 text-left transition hover:-translate-y-0.5 hover:shadow-soft-lg sm:min-h-[8rem] sm:p-4 xl:min-h-[8.5rem] xl:p-5"
+                            :class="[
+                                addingId === plan.id ? 'pointer-events-none scale-[0.98] ring-2 ring-brand-400' : 'active:scale-[0.98]',
+                                justAddedId === plan.id ? 'ring-2 ring-emerald-400' : '',
+                                addingId && addingId !== plan.id ? 'opacity-60' : '',
+                            ]"
+                            :disabled="!!addingId"
                             @click="addPlan(plan)"
                         >
                             <PlanIcon :name="plan.icon || 'wash'" :logo-url="plan.logo_url" />
@@ -160,6 +206,31 @@ const submit = () => {
                                 <p class="text-[11px] font-semibold uppercase tracking-wide text-brand-600">{{ plan.code }}</p>
                                 <p class="mt-1 line-clamp-2 font-bold leading-snug text-soft-900">{{ plan.plan }}</p>
                                 <p class="mt-2 text-sm font-semibold text-soft-700 sm:text-base">{{ money(plan.price) }}</p>
+                            </div>
+
+                            <!-- Loading / added overlay -->
+                            <div
+                                v-if="addingId === plan.id || justAddedId === plan.id"
+                                class="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-[1px]"
+                            >
+                                <div
+                                    v-if="addingId === plan.id"
+                                    class="flex flex-col items-center gap-2"
+                                >
+                                    <span class="kasir-add-spinner h-8 w-8 rounded-full border-[3px] border-brand-200 border-t-brand-600" />
+                                    <span class="text-xs font-semibold text-brand-700">Menambah...</span>
+                                </div>
+                                <div
+                                    v-else
+                                    class="flex flex-col items-center gap-1.5 text-emerald-700"
+                                >
+                                    <span class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </span>
+                                    <span class="text-xs font-semibold">Ditambahkan</span>
+                                </div>
                             </div>
                         </button>
                     </div>

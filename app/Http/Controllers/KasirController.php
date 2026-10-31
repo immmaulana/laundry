@@ -108,8 +108,43 @@ class KasirController extends Controller
 
             DB::commit();
 
+            $order->load(['customer', 'itemLines.plan']);
+            $company = auth()->user()->company;
+            $subtotalBeforeDiscount = collect($lines)->sum('subtotal');
+
+            $receipt = [
+                'id' => $order->id,
+                'ordered_at' => now()->format('d/m/Y H:i'),
+                'cashier' => auth()->user()->name,
+                'customer_name' => $order->customer?->name,
+                'customer_phone' => $order->customer?->phone,
+                'company_name' => $company?->name ?? 'CashierLaundry',
+                'company_address' => trim(collect([$company?->address, $company?->city])->filter()->implode(', ')),
+                'company_phone' => $company?->phone,
+                'items' => $order->itemLines->map(fn ($line) => [
+                    'name' => $line->plan?->plan ?? $line->description,
+                    'qty' => (int) $line->quantity,
+                    'price' => (int) $line->price,
+                    'subtotal' => (int) $line->subtotal,
+                ])->values()->all(),
+                'subtotal' => (int) $subtotalBeforeDiscount,
+                'discount' => $discount,
+                'total' => (int) $order->total,
+                'paid' => (int) $paidInput,
+                'change' => (int) $change,
+                'payment_method' => $data['payment_method'],
+                'payment_method_label' => match ($data['payment_method']) {
+                    'qris' => 'QRIS',
+                    'transfer' => 'Transfer',
+                    default => 'Tunai',
+                },
+                'payment_status' => $order->payment_status,
+                'payment_status_label' => PaymentStatus::from($order->payment_status)->label(),
+            ];
+
             return redirect()->route('kasir.index')
-                ->with('success', 'Pesanan #'.$order->id.' tersimpan · Rp '.number_format($total, 0, ',', '.'));
+                ->with('success', 'Pesanan #'.$order->id.' tersimpan · Rp '.number_format($total, 0, ',', '.'))
+                ->with('receipt', $receipt);
         } catch (\Throwable $th) {
             DB::rollBack();
 

@@ -127,12 +127,23 @@
     }
 }
 
+.kasir-add-spinner {
+    animation: kasir-spin 0.65s linear infinite;
+}
+
+@keyframes kasir-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .brand-logo-enter,
     .brand-rise,
     .brand-rise-delayed,
     .brand-float,
-    .brand-float-delayed {
+    .brand-float-delayed,
+    .kasir-add-spinner {
         animation: none;
     }
 }
