@@ -1,9 +1,11 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
+import ReceiptPreview from '@/Components/ReceiptPreview.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import { money } from '@/Composables/format';
 import { Head, Link, router } from '@inertiajs/vue3';
+import axios from 'axios';
 import { ref, watch } from 'vue';
 
 const props = defineProps({
@@ -14,6 +16,8 @@ const props = defineProps({
 });
 
 const search = ref(props.filters.search || '');
+const receipt = ref(null);
+const loadingReceipt = ref(false);
 
 watch(search, (value) => {
     router.get(route('order.index'), { search: value || undefined }, { preserveState: true, replace: true });
@@ -22,6 +26,18 @@ watch(search, (value) => {
 const destroy = (id) => {
     if (confirm('Hapus pesanan ini?')) {
         router.delete(route('order.destroy', id));
+    }
+};
+
+const openReceipt = async (id) => {
+    loadingReceipt.value = true;
+    try {
+        const { data } = await axios.get(route('order.receipt', id));
+        receipt.value = data;
+    } catch (e) {
+        alert(e?.response?.data?.message || 'Gagal memuat struk');
+    } finally {
+        loadingReceipt.value = false;
     }
 };
 </script>
@@ -36,6 +52,12 @@ const destroy = (id) => {
                 <p class="text-sm text-soft-500">Kelola status cucian & pembayaran</p>
             </div>
         </template>
+
+        <ReceiptPreview
+            v-if="receipt"
+            :receipt="receipt"
+            @close="receipt = null"
+        />
 
         <div class="space-y-5">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -66,7 +88,8 @@ const destroy = (id) => {
                         <StatusBadge :status="order.order_status" :label="statusLabels[order.order_status]" />
                         <StatusBadge :status="order.payment_status" :label="paymentLabels[order.payment_status]" />
                     </div>
-                    <div class="mt-3 flex gap-2">
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        <button type="button" class="btn-secondary min-h-11 flex-1" :disabled="loadingReceipt" @click="openReceipt(order.id)">Struk</button>
                         <Link :href="route('order.edit', order.id)" class="btn-secondary min-h-11 flex-1 text-center">Detail</Link>
                         <button type="button" class="btn-danger min-h-11" @click="destroy(order.id)">Hapus</button>
                     </div>
@@ -101,6 +124,7 @@ const destroy = (id) => {
                                     <StatusBadge :status="order.payment_status" :label="paymentLabels[order.payment_status]" />
                                 </td>
                                 <td class="px-5 py-3 text-right">
+                                    <button type="button" class="mr-3 text-sm font-semibold text-brand-700" :disabled="loadingReceipt" @click="openReceipt(order.id)">Struk</button>
                                     <Link :href="route('order.edit', order.id)" class="mr-3 text-sm font-semibold text-brand-700">Detail</Link>
                                     <button type="button" class="text-sm font-semibold text-rose-600" @click="destroy(order.id)">Hapus</button>
                                 </td>
