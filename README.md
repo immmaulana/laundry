@@ -1,4 +1,4 @@
-# Laundry Soft
+# CashierLaundry
 
 Aplikasi manajemen laundry multi-perusahaan berbasis **Laravel 12 + Vue 3 + Inertia (Breeze)**.  
 Satu platform bisa dipakai banyak PT/tenant; setiap perusahaan punya data, karyawan, dan operasional sendiri.
@@ -63,7 +63,7 @@ php artisan key:generate
 Sesuaikan database di `.env`:
 
 ```env
-APP_NAME="Laundry Soft"
+APP_NAME="CashierLaundry"
 APP_URL=http://127.0.0.1:8000
 
 DB_CONNECTION=mysql
@@ -127,7 +127,7 @@ php artisan key:generate
 ### 3. Konfigurasi `.env` production
 
 ```env
-APP_NAME="Laundry Soft"
+APP_NAME="CashierLaundry"
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://laundry.domainanda.com

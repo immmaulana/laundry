@@ -57,10 +57,12 @@ onUnmounted(() => {
 
 const laptopStyle = () => ({
     transform: `translate3d(${parallaxX.value * -12}px, ${parallaxY.value * 28}px, 0) rotate(${parallaxX.value * -1.5}deg)`,
+    imageRendering: 'auto',
 });
 
 const tabletStyle = () => ({
     transform: `translate3d(${parallaxX.value * 18}px, ${parallaxY.value * -36}px, 0) rotate(${parallaxX.value * 2}deg)`,
+    imageRendering: 'auto',
 });
 
 const features = [
@@ -89,19 +91,19 @@ const steps = [
 </script>
 
 <template>
-    <Head title="KucekPos — Laundry POS" />
+    <Head title="CashierLaundry — Laundry POS" />
 
     <div class="min-h-screen overflow-x-hidden bg-[#f3f7fc] text-[#0b1f4d]">
         <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-            <div class="kucek-float absolute -left-24 top-20 h-72 w-72 rounded-full bg-sky-200/50 blur-3xl" />
-            <div class="kucek-float-delayed absolute -right-16 top-40 h-80 w-80 rounded-full bg-[#0b3d8c]/10 blur-3xl" />
-            <div class="kucek-float absolute bottom-20 left-1/3 h-64 w-64 rounded-full bg-cyan-100/60 blur-3xl" />
+            <div class="brand-float absolute -left-24 top-20 h-72 w-72 rounded-full bg-sky-200/50 blur-3xl" />
+            <div class="brand-float-delayed absolute -right-16 top-40 h-80 w-80 rounded-full bg-[#0b3d8c]/10 blur-3xl" />
+            <div class="brand-float absolute bottom-20 left-1/3 h-64 w-64 rounded-full bg-cyan-100/60 blur-3xl" />
         </div>
 
         <header class="sticky top-0 z-30 border-b border-sky-100/80 bg-white/80 backdrop-blur-md">
             <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:h-[4.25rem] sm:px-8">
                 <Link href="/" class="inline-flex items-center">
-                    <img src="/brand/kucekpos-logo.png" alt="KucekPos" class="h-11 w-auto sm:h-12" />
+                    <img src="/brand/cashierlaundry-logo.png" alt="CashierLaundry" class="h-11 w-auto sm:h-12" />
                 </Link>
                 <Link
                     :href="route('login')"
@@ -114,10 +116,10 @@ const steps = [
 
         <!-- Hero -->
         <section class="relative mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 pt-10 sm:px-8 sm:pb-20 sm:pt-14 lg:grid-cols-2 lg:gap-12 lg:pt-16">
-            <div class="kucek-rise order-2 lg:order-1">
+            <div class="brand-rise order-2 lg:order-1">
                 <p class="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">Laundry POS</p>
                 <h1 class="mt-3 text-4xl font-extrabold tracking-tight text-[#0b1f4d] sm:text-5xl lg:leading-[1.08]">
-                    KucekPos bikin kasir laundry lebih santai.
+                    CashierLaundry bikin kasir laundry lebih santai.
                 </h1>
                 <p class="mt-5 max-w-md text-base leading-relaxed text-slate-600 sm:text-lg">
                     Satu panel untuk kasir, antrian, dan laporan. Soft dipakai tiap shift — cepat disentuh, mudah dipahami.
@@ -138,8 +140,8 @@ const steps = [
                 </div>
             </div>
 
-            <div class="kucek-rise-delayed relative order-1 lg:order-2">
-                <div class="kucek-float relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0b3d8c] to-[#1d6bb8] p-3 shadow-soft-lg sm:p-4">
+            <div class="brand-rise-delayed relative order-1 lg:order-2">
+                <div class="brand-float relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0b3d8c] to-[#1d6bb8] p-3 shadow-soft-lg sm:p-4">
                     <div class="overflow-hidden rounded-[1.5rem]">
                         <video
                             ref="videoRef"
@@ -154,11 +156,11 @@ const steps = [
                         </video>
                     </div>
                 </div>
-                <div class="kucek-float-delayed absolute -bottom-4 -left-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-left-6">
+                <div class="brand-float-delayed absolute -bottom-4 -left-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-left-6">
                     <p class="text-xs font-semibold text-sky-600">Antrian hari ini</p>
                     <p class="text-lg font-bold text-[#0b1f4d]">Rapi & jelas</p>
                 </div>
-                <div class="kucek-float absolute -right-2 -top-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-right-4">
+                <div class="brand-float absolute -right-2 -top-3 rounded-2xl bg-white px-4 py-3 shadow-soft-lg ring-1 ring-sky-100 sm:-right-4">
                     <p class="text-xs font-semibold text-sky-600">Kasir tablet</p>
                     <p class="text-lg font-bold text-[#0b1f4d]">Siap sentuh</p>
                 </div>
@@ -168,7 +170,7 @@ const steps = [
         <!-- Fitur + parallax devices -->
         <section id="fitur" class="relative overflow-hidden bg-white">
             <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
-                <div class="kucek-rise max-w-2xl">
+                <div class="brand-rise max-w-2xl">
                     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">Fitur utama</p>
                     <h2 class="mt-3 text-3xl font-bold tracking-tight text-[#0b1f4d] sm:text-4xl">
                         Lucu dipakai, serius bantu operasional.
@@ -187,17 +189,23 @@ const steps = [
                     <div class="absolute inset-x-8 bottom-6 top-10 rounded-[2.5rem] bg-gradient-to-b from-sky-50 to-[#e8f1fb] sm:inset-x-12" />
 
                     <img
-                        src="/brand/kucekpos-laptop.png"
-                        alt="Dashboard KucekPos di laptop"
-                        class="pointer-events-none absolute bottom-[8%] left-[-2%] z-10 w-[72%] max-w-none drop-shadow-xl transition-transform duration-300 ease-out will-change-transform sm:left-[2%] sm:w-[68%]"
+                        src="/brand/cashierlaundry-laptop.png?v=2"
+                        alt="Dashboard CashierLaundry di laptop"
+                        class="pointer-events-none absolute bottom-[6%] left-[-2%] z-10 w-[78%] max-w-none drop-shadow-xl transition-transform duration-300 ease-out will-change-transform sm:left-0 sm:w-[72%]"
                         :style="laptopStyle()"
+                        width="917"
+                        height="676"
+                        decoding="async"
                         draggable="false"
                     />
                     <img
-                        src="/brand/kucekpos-tablet.png"
-                        alt="Kasir POS KucekPos di tablet"
-                        class="pointer-events-none absolute bottom-[4%] right-[-4%] z-20 w-[42%] max-w-none drop-shadow-2xl transition-transform duration-300 ease-out will-change-transform sm:right-[2%] sm:w-[38%]"
+                        src="/brand/cashierlaundry-tablet.png?v=2"
+                        alt="Kasir POS CashierLaundry di tablet"
+                        class="pointer-events-none absolute bottom-[2%] right-[-2%] z-20 w-[48%] max-w-none drop-shadow-2xl transition-transform duration-300 ease-out will-change-transform sm:right-[1%] sm:w-[42%]"
                         :style="tabletStyle()"
+                        width="755"
+                        height="587"
+                        decoding="async"
                         draggable="false"
                     />
                 </div>
@@ -206,7 +214,7 @@ const steps = [
                     <article
                         v-for="(item, i) in features"
                         :key="item.title"
-                        class="kucek-rise rounded-3xl bg-[#f3f7fc] p-6 transition hover:-translate-y-1 hover:shadow-soft"
+                        class="brand-rise rounded-3xl bg-[#f3f7fc] p-6 transition hover:-translate-y-1 hover:shadow-soft"
                         :style="{ animationDelay: `${120 + i * 90}ms` }"
                     >
                         <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0b3d8c] text-white">
@@ -224,7 +232,7 @@ const steps = [
         <!-- Alur -->
         <section class="relative">
             <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
-                <div class="kucek-rise max-w-2xl">
+                <div class="brand-rise max-w-2xl">
                     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-sky-600">Alur kerja</p>
                     <h2 class="mt-3 text-3xl font-bold tracking-tight text-[#0b1f4d] sm:text-4xl">
                         Tiga langkah, selesai.
@@ -235,7 +243,7 @@ const steps = [
                     <li
                         v-for="(step, i) in steps"
                         :key="step.n"
-                        class="kucek-rise relative rounded-3xl border border-sky-100 bg-white p-6 shadow-soft"
+                        class="brand-rise relative rounded-3xl border border-sky-100 bg-white p-6 shadow-soft"
                         :style="{ animationDelay: `${140 + i * 90}ms` }"
                     >
                         <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sm font-bold text-[#0b3d8c]">
@@ -250,12 +258,12 @@ const steps = [
 
         <!-- CTA -->
         <section class="relative px-5 pb-16 sm:px-8 sm:pb-20">
-            <div class="kucek-rise mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0b3d8c] via-[#1456a8] to-[#38bdf8] px-8 py-12 text-white sm:px-12 sm:py-14">
+            <div class="brand-rise mx-auto max-w-6xl overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0b3d8c] via-[#1456a8] to-[#38bdf8] px-8 py-12 text-white sm:px-12 sm:py-14">
                 <div class="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
                     <div class="max-w-xl">
                         <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">Siap buka shift?</h2>
                         <p class="mt-3 text-base text-sky-50/90">
-                            Masuk ke KucekPos — kasir dan antrian langsung siap dipakai.
+                            Masuk ke CashierLaundry — kasir dan antrian langsung siap dipakai.
                         </p>
                     </div>
                     <Link
@@ -270,7 +278,7 @@ const steps = [
 
         <footer class="border-t border-sky-100 bg-white">
             <div class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-                <p>© {{ new Date().getFullYear() }} KucekPos</p>
+                <p>© {{ new Date().getFullYear() }} CashierLaundry</p>
                 <p>Laundry POS · kasir · antrian · laporan</p>
             </div>
         </footer>

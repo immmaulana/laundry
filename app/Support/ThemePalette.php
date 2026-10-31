@@ -4,20 +4,20 @@ namespace App\Support;
 
 class ThemePalette
 {
-    /** Default brand — sama dengan halaman login KucekPos */
+    /** Default brand — sama dengan halaman login CashierLaundry */
     public const DEFAULT_PRIMARY = '#0B3D8C';
 
     public const DEFAULT_SECONDARY = '#64748B';
 
     /**
-     * Preset template warna (urutan: KucekPos default dulu).
+     * Preset template warna (urutan: CashierLaundry default dulu).
      *
      * @return list<array{name:string,primary_color:string,secondary_color:string}>
      */
     public static function presets(): array
     {
         return [
-            ['name' => 'KucekPos', 'primary_color' => self::DEFAULT_PRIMARY, 'secondary_color' => self::DEFAULT_SECONDARY],
+            ['name' => 'CashierLaundry', 'primary_color' => self::DEFAULT_PRIMARY, 'secondary_color' => self::DEFAULT_SECONDARY],
             ['name' => 'Ocean Blue', 'primary_color' => '#2563EB', 'secondary_color' => '#64748B'],
             ['name' => 'Teal Soft', 'primary_color' => '#278074', 'secondary_color' => '#627589'],
             ['name' => 'Forest', 'primary_color' => '#2F6B4F', 'secondary_color' => '#6B7280'],

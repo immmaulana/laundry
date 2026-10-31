@@ -125,7 +125,7 @@ const toggleCollapsed = () => {
 
                     <div v-if="!collapsed" class="min-w-0 flex-1">
                         <p class="truncate text-sm font-bold tracking-tight text-soft-900">
-                            {{ isSuper ? 'KucekPos' : (company?.name || 'KucekPos') }}
+                            {{ isSuper ? 'CashierLaundry' : (company?.name || 'CashierLaundry') }}
                         </p>
                         <p class="truncate text-xs text-soft-500">
                             {{ isSuper ? 'Platform owner' : (company?.code ? `${company.code} · ${company.city || 'Admin'}` : 'Admin panel') }}

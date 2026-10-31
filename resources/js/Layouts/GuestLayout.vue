@@ -65,8 +65,8 @@ onUnmounted(() => {
                 <slot name="brand">
                     <Link href="/" class="mb-7 inline-flex">
                         <img
-                            src="/brand/kucekpos-logo.png"
-                            alt="KucekPos"
+                            src="/brand/cashierlaundry-logo.png"
+                            alt="CashierLaundry"
                             class="h-14 w-auto object-left sm:h-16"
                         />
                     </Link>
@@ -75,7 +75,7 @@ onUnmounted(() => {
                 <slot />
 
                 <p class="mt-10 text-center text-xs text-slate-400 lg:text-left">
-                    © {{ new Date().getFullYear() }} KucekPos
+                    © {{ new Date().getFullYear() }} CashierLaundry
                 </p>
             </div>
         </section>

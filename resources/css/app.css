@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-    /* Default KucekPos (sama login) — diganti per perusahaan via JS */
+    /* Default CashierLaundry (sama login) — diganti per perusahaan via JS */
     --brand-50: 235 239 246;
     --brand-100: 206 216 232;
     --brand-200: 162 181 211;
@@ -74,28 +74,28 @@
         @apply -mx-4 overflow-x-auto px-4 md:mx-0 md:px-0;
     }
 
-    .kucek-logo-enter {
-        animation: kucek-logo-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    .brand-logo-enter {
+        animation: brand-logo-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .kucek-rise {
-        animation: kucek-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    .brand-rise {
+        animation: brand-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
-    .kucek-rise-delayed {
-        animation: kucek-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+    .brand-rise-delayed {
+        animation: brand-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
     }
 
-    .kucek-float {
-        animation: kucek-float 5.5s ease-in-out infinite;
+    .brand-float {
+        animation: brand-float 5.5s ease-in-out infinite;
     }
 
-    .kucek-float-delayed {
-        animation: kucek-float 6.5s ease-in-out 0.8s infinite;
+    .brand-float-delayed {
+        animation: brand-float 6.5s ease-in-out 0.8s infinite;
     }
 }
 
-@keyframes kucek-logo-in {
+@keyframes brand-logo-in {
     0% {
         opacity: 0;
         transform: translateY(10px) scale(0.96);
@@ -106,7 +106,7 @@
     }
 }
 
-@keyframes kucek-rise {
+@keyframes brand-rise {
     0% {
         opacity: 0;
         transform: translateY(16px);
@@ -117,7 +117,7 @@
     }
 }
 
-@keyframes kucek-float {
+@keyframes brand-float {
     0%,
     100% {
         transform: translateY(0);
@@ -128,11 +128,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .kucek-logo-enter,
-    .kucek-rise,
-    .kucek-rise-delayed,
-    .kucek-float,
-    .kucek-float-delayed {
+    .brand-logo-enter,
+    .brand-rise,
+    .brand-rise-delayed,
+    .brand-float,
+    .brand-float-delayed {
         animation: none;
     }
 }
