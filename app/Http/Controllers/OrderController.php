@@ -130,4 +130,41 @@ class OrderController extends Controller
 
         return redirect()->route('order.index')->with('success', 'Pesanan dihapus.');
     }
+
+    public function receipt(Order $order): \Illuminate\Http\JsonResponse
+    {
+        $order->load(['customer', 'itemLines.plan']);
+        $company = auth()->user()->company;
+        $discount = 0;
+        $itemsSubtotal = $order->itemLines->sum('subtotal');
+        if ($itemsSubtotal > $order->total) {
+            $discount = (int) ($itemsSubtotal - $order->total);
+        }
+
+        return response()->json([
+            'id' => $order->id,
+            'ordered_at' => $order->ordered_at?->format('d/m/Y').' '.($order->created_at?->format('H:i') ?? ''),
+            'cashier' => auth()->user()->name,
+            'customer_name' => $order->customer?->name,
+            'customer_phone' => $order->customer?->phone,
+            'company_name' => $company?->name ?? 'CashierLaundry',
+            'company_address' => trim(collect([$company?->address, $company?->city])->filter()->implode(', ')),
+            'company_phone' => $company?->phone,
+            'items' => $order->itemLines->map(fn ($line) => [
+                'name' => $line->plan?->plan ?? $line->description,
+                'qty' => (int) $line->quantity,
+                'price' => (int) $line->price,
+                'subtotal' => (int) $line->subtotal,
+            ])->values()->all(),
+            'subtotal' => (int) $itemsSubtotal,
+            'discount' => $discount,
+            'total' => (int) $order->total,
+            'paid' => (int) ($order->payment + $order->change),
+            'change' => (int) $order->change,
+            'payment_method' => null,
+            'payment_method_label' => '—',
+            'payment_status' => $order->payment_status,
+            'payment_status_label' => PaymentStatus::tryFrom($order->payment_status)?->label() ?? $order->payment_status,
+        ]);
+    }
 }

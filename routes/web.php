@@ -63,6 +63,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('antrian/{order}/status', [QueueController::class, 'updateStatus'])->name('queue.status');
 
         Route::resource('order', OrderController::class)->except(['show']);
+        Route::get('order/{order}/receipt', [OrderController::class, 'receipt'])->name('order.receipt');
         Route::post('order/{order}/item-line', [OrderItemLineController::class, 'store'])->name('order.item.store');
         Route::delete('order/{order}/item-line/{item}', [OrderItemLineController::class, 'destroy'])->name('order.item.destroy');
 
